@@ -10,10 +10,13 @@
     <title><%= current_page.data.title || "The Middleman" %></title>
     
     <%= stylesheet_link_tag "normalize", "all" %>
-    <%= javascript_include_tag  "all" %>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.8.0/react.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore.js"></script>
   </head>
   
   <body class="<%= page_classes %>">
     <%= yield %>
+    <%= javascript_include_tag  "all" %>
   </body>
 </html>
