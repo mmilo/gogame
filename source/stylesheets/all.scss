@@ -6,6 +6,7 @@
   width: 90%;
   background: image-url('board.png');
   background-size: 50% 50%;
+  z-index: 1;
   &:before {
     content: '';
     display: block;
@@ -63,6 +64,7 @@
     height: 2px;
     background: rgba(#111, .9);
     content: '';
+    z-index: -1;
   }
   &:before {
     top: 1px;
@@ -83,25 +85,19 @@
     }
   }
 }
+
 .stone {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  bottom: 2px;
-  left: 2px;
-  z-index: 2;
   border-radius: 100%;
   box-shadow: 0 1px 2px rgba(#000, .4);
   &--white {
     background: white;
-    background: linear-gradient(to bottom, #fff 0%, #ddd 100%);
+    background: linear-gradient(to bottom, #fff 0%, #ddd 100%) !important;
   }
   &--black {
     background: black;
-    background: linear-gradient(to bottom, #555 0%, #000 100%);
+    background: linear-gradient(to bottom, #555 0%, #000 100%) !important;
   }
 }
-
 
 #alerts {
     height: 40px;
@@ -113,45 +109,4 @@
 
 #board {
     position: relative;
-}
-
-.intersection {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    position: absolute;
-    box-sizing: border-box;
-}
-
-.intersection:before {
-    border-top: 2px #000 solid;
-    width: 40px;
-    display: block;
-    content: "";
-    top: 18px;
-    position: absolute;
-    z-index: -1;
-}
-
-.intersection:after {
-    border-left: 2px #000 solid;
-    height: 40px;
-    display: block;
-    content: "";
-    left: 18px;
-    top: 0px;
-    position: absolute;
-    z-index: -1;
-}
-
-.intersection.black, .intersection.white {
-    border: 1px solid #000;
-}
-
-.intersection.black {
-    background-color: #444;
-}
-
-.intersection.white {
-    background-color: #eee;
 }

@@ -8,27 +8,32 @@ var BoardIntersection = React.createClass({
             this.props.onPlay();
     },
     render: function() {
-        var style = {
-            top: this.props.row * GRID_SIZE,
-            left: this.props.col * GRID_SIZE
-        };
-
-        var classes = "intersection ";
+        var classes = "point ";
         if (this.props.color != Board.EMPTY)
-            classes += this.props.color == Board.BLACK ? "black" : "white";
+            classes += this.props.color == Board.BLACK ? "stone stone--black" : "stone stone--white";
+
+        var style = {};
 
         return (
-            <div onClick={this.handleClick} 
-                className={classes} style={style}></div>
+            <td onClick={this.handleClick} className={classes} style={style}></td>
         );
     }
 });
 
+var BoardRow = React.createClass({
+  render: function(){
+    return (
+      <tr className='row'>{this.props.intersections}</tr>
+    );
+  }
+});
+
 var BoardView = React.createClass({
     render: function() {
-        var intersections = [];
-        for (var i = 0; i < this.props.board.size; i++)
-            for (var j = 0; j < this.props.board.size; j++)
+        var rows = [];
+        for (var i = 0; i < this.props.board.size; i++) {
+            var intersections = [];
+            for (var j = 0; j < this.props.board.size; j++) {
                 intersections.push(BoardIntersection({
                     board: this.props.board,
                     color: this.props.board.board[i][j],
@@ -36,11 +41,23 @@ var BoardView = React.createClass({
                     col: j,
                     onPlay: this.props.onPlay
                 }));
-        var style = {
-            width: this.props.board.size * GRID_SIZE,
-            height: this.props.board.size * GRID_SIZE
-        };
-        return <div style={style} id="board">{intersections}</div>;
+            }
+            rows.push(BoardRow({intersections: intersections}));
+        }
+        var style = {};
+        //{
+        //    width: this.props.board.size * GRID_SIZE,
+        //    height: this.props.board.size * GRID_SIZE
+        //};
+        return (
+          <div className='table'>
+            <div className='board'>
+              <table className='grid'>
+                {rows}
+              </table>
+            </div>
+          </div>
+        );
     }
 });
 
