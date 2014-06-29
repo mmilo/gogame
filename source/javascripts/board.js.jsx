@@ -49,9 +49,10 @@ var BoardView = React.createClass({
         //    width: this.props.board.size * GRID_SIZE,
         //    height: this.props.board.size * GRID_SIZE
         //};
+        var boardClass = 'board turn turn--' + (this.props.board.current_color == Board.BLACK ? 'black' : 'white');
         return (
           <div className='table'>
-            <div className='board'>
+            <div className={boardClass}>
               <table className='grid'>
                 {rows}
               </table>
