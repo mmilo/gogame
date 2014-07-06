@@ -1,7 +1,5 @@
 /** @jsx React.DOM */
 
-var GRID_SIZE = 40;
-
 var BoardIntersection = React.createClass({
     handleClick: function() {
         if (this.props.board.play(this.props.row, this.props.col))
@@ -9,13 +7,11 @@ var BoardIntersection = React.createClass({
     },
     render: function() {
         var classes = "point ";
-        if (this.props.color != Board.EMPTY)
-            classes += this.props.color == Board.BLACK ? "stone stone--black" : "stone stone--white";
-
-        var style = {};
+        if (this.props.color != Go.EMPTY)
+            classes += this.props.color == Go.BLACK ? "stone stone--black" : "stone stone--white";
 
         return (
-            <td onClick={this.handleClick} className={classes} style={style}></td>
+            <td onClick={this.handleClick} className={classes}></td>
         );
     }
 });
@@ -44,12 +40,7 @@ var BoardView = React.createClass({
             }
             rows.push(BoardRow({intersections: intersections}));
         }
-        var style = {};
-        //{
-        //    width: this.props.board.size * GRID_SIZE,
-        //    height: this.props.board.size * GRID_SIZE
-        //};
-        var boardClass = 'board turn turn--' + (this.props.board.current_color == Board.BLACK ? 'black' : 'white');
+        var boardClass = 'board turn turn--' + (this.props.board.current_color == Go.BLACK ? 'black' : 'white');
         return (
           <div className='table'>
             <div className={boardClass}>
@@ -107,7 +98,7 @@ var ContainerView = React.createClass({
     }
 });
 
-var board = new Board(19);
+var board = new Go.Board(19);
 
 React.renderComponent(
     <ContainerView board={board} />,
