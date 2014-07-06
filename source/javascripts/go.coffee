@@ -1,10 +1,6 @@
-#
 # Game logic for the board game Go
-# 
 class Go.Board
-
   constructor: (size) ->
-    console.log size
     @current_color = Go.BLACK
     @size = size
     @board = @create_board(size)
