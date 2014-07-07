@@ -1,5 +1,5 @@
 ###* @jsx React.DOM ###
-BoardIntersection = React.createClass(
+BoardIntersection = React.createClass
   handleClick: ->
     @props.onPlay()  if @props.board.play(@props.row, @props.col)
     return
@@ -8,40 +8,41 @@ BoardIntersection = React.createClass(
     classes = "point "
     classes += (if @props.color is Go.BLACK then "stone stone--black" else "stone stone--white")  unless @props.color is Go.EMPTY
     `<td onClick={this.handleClick} className={classes}></td>`
-)
 
-BoardRow = React.createClass(render: ->
-  `<tr className='row'>{this.props.intersections}</tr>`
-)
-BoardView = React.createClass(render: ->
-  rows = []
-  i = 0
+BoardRow = React.createClass
+  render: ->
+    `<tr className='row'>{this.props.intersections}</tr>`
 
-  while i < @props.board.size
-    intersections = []
-    j = 0
+BoardView = React.createClass
+  render: ->
+    rows = []
+    i = 0
 
-    while j < @props.board.size
-      intersections.push BoardIntersection(
-        board: @props.board
-        color: @props.board.board[i][j]
-        row: i
-        col: j
-        onPlay: @props.onPlay
-      )
-      j++
-    rows.push BoardRow(intersections: intersections)
-    i++
-  boardClass = "board turn turn--" + ((if @props.board.current_color is Go.BLACK then "black" else "white"))
-  `<div className='table'>
-    <div className={boardClass}>
-      <table className='grid'>
-        {rows}
-      </table>
-    </div>
-  </div>`
-)
-AlertView = React.createClass(
+    while i < @props.board.size
+      intersections = []
+      j = 0
+
+      while j < @props.board.size
+        intersections.push BoardIntersection(
+          board: @props.board
+          color: @props.board.board[i][j]
+          row: i
+          col: j
+          onPlay: @props.onPlay
+        )
+        j++
+      rows.push BoardRow(intersections: intersections)
+      i++
+    boardClass = "board turn turn--" + ((if @props.board.current_color is Go.BLACK then "black" else "white"))
+    `<div className='table'>
+      <div className={boardClass}>
+        <table className='grid'>
+          {rows}
+        </table>
+      </div>
+    </div>`
+
+AlertView = React.createClass
   render: ->
     text = ""
     if @props.board.in_atari
@@ -49,16 +50,16 @@ AlertView = React.createClass(
     else if @props.board.attempted_suicide
       text = "SUICIDE!"
     `<div id="alerts">{text}</div>`
-)
-PassView = React.createClass(
+
+PassView = React.createClass
   handleClick: (e) ->
     @props.board.pass()
     return
 
   render: ->
     `<input id="pass-btn" type="button" value="Piss" onClick={this.handleClick} />`
-)
-ContainerView = React.createClass(
+
+ContainerView = React.createClass
   getInitialState: ->
     board: @props.board
 
@@ -73,6 +74,5 @@ ContainerView = React.createClass(
         <BoardView board={this.state.board} 
             onPlay={this.onBoardUpdate.bind(this)} />
     </div>`
-)
 board = new Go.Board(19)
 React.renderComponent `<ContainerView board={board} />`, document.getElementById("main")
