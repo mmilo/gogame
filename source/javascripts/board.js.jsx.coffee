@@ -57,7 +57,7 @@ PassView = React.createClass
     return
 
   render: ->
-    `<input id="pass-btn" type="button" value="Piss" onClick={this.handleClick} />`
+    `<input id="pass-btn" type="button" value="Pass" onClick={this.handleClick} />`
 
 ContainerView = React.createClass
   getInitialState: ->
@@ -74,5 +74,8 @@ ContainerView = React.createClass
         <BoardView board={this.state.board} 
             onPlay={this.onBoardUpdate.bind(this)} />
     </div>`
-board = new Go.Board(19)
+
+window.board = board = new Go.Board({ size: 19 })
+board.start_game()
+
 React.renderComponent `<ContainerView board={board} />`, document.getElementById("main")

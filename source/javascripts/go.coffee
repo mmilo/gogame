@@ -1,13 +1,18 @@
 # Game logic for the board game Go
-class Go.Board
-  constructor: (size) ->
+class Go.Board extends Backbone.Firebase.Model
+  firebase: "https://intense-fire-8240.firebaseio.com/game-#{(new Date).valueOf()}"
+
+  initialize: (options) =>
     @current_color = Go.BLACK
-    @size = size
-    @board = @create_board(size)
+    @size = options.size
+    @board = @create_board(@size)
     @last_move_passed = false
     @in_atari = false
     @attempted_suicide = false
-    @moves = []
+
+  start_game: =>
+    @set(started_at: new Date().valueOf())
+    @set(moves: { 0: undefined })
 
   # Returns a size x size matrix with all entries initialized to Board.EMPTY
   create_board: (size) ->
@@ -40,7 +45,7 @@ class Go.Board
     return
 
   # * Attempt to place a stone at (i,j). Returns true iff the move was legal
-  play: (i, j) ->
+  play: (i, j) =>
     console.log "Played at " + i + ", " + j
     @attempted_suicide = @in_atari = false
     return false unless @board[i][j] is Go.EMPTY
@@ -75,8 +80,10 @@ class Go.Board
     @in_atari = true  if atari
     @last_move_passed = false
     # Store the move
-    @moves.push([i,j])
-    #console.dir @moves
+    moves = @get('moves')
+    moves.push([i,j])
+    @set('moves', moves)
+    console.dir @get("moves")
     @switch_player()
     true
 
