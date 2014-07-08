@@ -7,29 +7,25 @@ class Go.Board
     @last_move_passed = false
     @in_atari = false
     @attempted_suicide = false
-
+    @moves = []
 
   # Returns a size x size matrix with all entries initialized to Board.EMPTY
   create_board: (size) ->
     m = []
     i = 0
-
     while i < size
       m[i] = []
       j = 0
-
       while j < size
         m[i][j] = Go.EMPTY
         j++
       i++
     m
 
-
   # Switches the current player
   switch_player: ->
     @current_color = (if @current_color is Go.BLACK then Go.WHITE else Go.BLACK)
     return
-
 
   # At any point in the game, a player can pass and let his opponent play
   pass: ->
@@ -38,18 +34,16 @@ class Go.Board
     @switch_player()
     return
 
-
   # Called when the game ends (both players passed)
   end_game: ->
     console.log "GAME OVER"
     return
 
-
   # * Attempt to place a stone at (i,j). Returns true iff the move was legal
   play: (i, j) ->
     console.log "Played at " + i + ", " + j
     @attempted_suicide = @in_atari = false
-    return false  unless @board[i][j] is Go.EMPTY
+    return false unless @board[i][j] is Go.EMPTY
     color = @board[i][j] = @current_color
     captured = []
     neighbors = @get_adjacent_intersections(i, j)
@@ -80,34 +74,24 @@ class Go.Board
 
     @in_atari = true  if atari
     @last_move_passed = false
+    # Store the move
+    @moves.push([i,j])
+    #console.dir @moves
     @switch_player()
     true
-
 
   # Given a board position, returns a list of [i,j] coordinates representing
   # orthagonally adjacent intersections
   get_adjacent_intersections: (i, j) ->
     neighbors = []
     if i > 0
-      neighbors.push [
-        i - 1
-        j
-      ]
+      neighbors.push [i-1, j]
     if j < @size - 1
-      neighbors.push [
-        i
-        j + 1
-      ]
+      neighbors.push [i, j+1]
     if i < @size - 1
-      neighbors.push [
-        i + 1
-        j
-      ]
+      neighbors.push [i+1, j]
     if j > 0
-      neighbors.push [
-        i
-        j - 1
-      ]
+      neighbors.push [i, j-1]
     neighbors
 
   # * Performs a breadth-first search about an (i,j) position to find recursively
@@ -121,10 +105,7 @@ class Go.Board
     return null  if color is Go.EMPTY
     visited = {} # for O(1) lookups
     visited_list = [] # for returning
-    queue = [[
-      i
-      j
-    ]]
+    queue = [[i, j]]
     count = 0
     while queue.length > 0
       stone = queue.pop()
@@ -135,10 +116,7 @@ class Go.Board
         state = self.board[n[0]][n[1]]
         count++  if state is Go.EMPTY
         if state is color
-          queue.push [
-            n[0]
-            n[1]
-          ]
+          queue.push [n[0], n[1]]
         return
 
       visited[stone] = true
