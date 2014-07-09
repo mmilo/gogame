@@ -76,6 +76,6 @@ ContainerView = React.createClass
     </div>`
 
 window.board = board = new Go.Board({ size: 19 })
-board.start_game()
+#board.start_game()
 
 React.renderComponent `<ContainerView board={board} />`, document.getElementById("main")

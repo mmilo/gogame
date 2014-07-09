@@ -80,8 +80,11 @@ class Go.Board extends Backbone.Firebase.Model
     @in_atari = true  if atari
     @last_move_passed = false
     # Store the move
-    moves = @get('moves')
-    moves.push([i,j])
+    moves = _.clone(@get('moves'))
+    moves ||= {}
+    @turn_number ||= 0
+    @turn_number += 1
+    moves[@turn_number] = [i,j]
     @set('moves', moves)
     console.dir @get("moves")
     @switch_player()
