@@ -11,8 +11,8 @@ class Go.Board extends Backbone.Firebase.Model
     @attempted_suicide = false
 
   start_game: =>
+    @move_number = 0
     @set(started_at: new Date().valueOf())
-    @set(moves: { 0: undefined })
 
   # Returns a size x size matrix with all entries initialized to Board.EMPTY
   create_board: (size) ->
@@ -29,6 +29,7 @@ class Go.Board extends Backbone.Firebase.Model
 
   # Switches the current player
   switch_player: ->
+    @move_number += 1
     @current_color = (if @current_color is Go.BLACK then Go.WHITE else Go.BLACK)
     return
 
@@ -80,13 +81,9 @@ class Go.Board extends Backbone.Firebase.Model
     @in_atari = true  if atari
     @last_move_passed = false
     # Store the move
-    moves = _.clone(@get('moves'))
-    moves ||= {}
-    @turn_number ||= 0
-    @turn_number += 1
-    moves[@turn_number] = [i,j]
+    moves = _.clone(@get('moves')) || {}
+    moves[@move_number] = [i,j]
     @set('moves', moves)
-    console.dir @get("moves")
     @switch_player()
     true
 
