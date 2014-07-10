@@ -75,7 +75,8 @@ ContainerView = React.createClass
             onPlay={this.onBoardUpdate.bind(this)} />
     </div>`
 
-window.board = board = new Go.Board({ size: 19 })
+game = if getParameterByName('g') then getParameterByName('g') else "game-#{(new Date).valueOf()}"
+window.board = board = new Go.Board({ size: 19, game_id: game })
 board.start_game()
 
-React.renderComponent `<ContainerView board={board} />`, document.getElementById("main")
+board.view = React.renderComponent `<ContainerView board={board} />`, document.getElementById("main")

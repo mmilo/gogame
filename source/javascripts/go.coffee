@@ -1,17 +1,29 @@
 # Game logic for the board game Go
 class Go.Board extends Backbone.Firebase.Model
-  firebase: "https://intense-fire-8240.firebaseio.com/game-#{(new Date).valueOf()}"
 
   initialize: (options) =>
     @current_color = Go.BLACK
     @size = options.size
-    @board = @create_board(@size)
     @last_move_passed = false
     @in_atari = false
     @attempted_suicide = false
+    @last_move_index = -1
+
+    @on('change:moves', (model) =>
+      console.log typeof @get('moves')
+      # Replay all the moves
+      _.each(@get('moves'), (move, key, moves) =>
+        if key > @last_move_index
+          @play(move[0], move[1], true)
+        else
+          console.log("not replaying move #{key}, (#{move[0]}, #{move[1]})")
+      )
+    )
+    @firebase = "https://intense-fire-8240.firebaseio.com/#{options.game_id}"
+
+    @board = @create_board(@size)
 
   start_game: =>
-    @move_number = 0
     @set(started_at: new Date().valueOf())
 
   # Returns a size x size matrix with all entries initialized to Board.EMPTY
@@ -29,9 +41,12 @@ class Go.Board extends Backbone.Firebase.Model
 
   # Switches the current player
   switch_player: ->
-    @move_number += 1
     @current_color = (if @current_color is Go.BLACK then Go.WHITE else Go.BLACK)
     return
+
+  move_number: ->
+    moves = @get('moves') || {}
+    _.keys(moves).length
 
   # At any point in the game, a player can pass and let his opponent play
   pass: ->
@@ -45,8 +60,7 @@ class Go.Board extends Backbone.Firebase.Model
     console.log "GAME OVER"
     return
 
-  # * Attempt to place a stone at (i,j). Returns true iff the move was legal
-  play: (i, j) =>
+  play: (i, j, replaying=false) =>
     console.log "Played at " + i + ", " + j
     @attempted_suicide = @in_atari = false
     return false unless @board[i][j] is Go.EMPTY
@@ -80,10 +94,15 @@ class Go.Board extends Backbone.Firebase.Model
 
     @in_atari = true  if atari
     @last_move_passed = false
+
+    @last_move_index += 1
     # Store the move
-    moves = _.clone(@get('moves')) || {}
-    moves[@move_number] = [i,j]
-    @set('moves', moves)
+    if replaying
+      @view.onBoardUpdate()
+    else
+      moves = _.clone(@get('moves')) || {}
+      moves[@move_number()] = [i,j]
+      @set('moves', moves)
     @switch_player()
     true
 
