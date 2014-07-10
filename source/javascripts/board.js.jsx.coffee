@@ -60,8 +60,14 @@ PassView = React.createClass
     `<input id="pass-btn" type="button" value="Pass" onClick={this.handleClick} />`
 
 ContainerView = React.createClass
+
   getInitialState: ->
-    board: @props.board
+    { board: @props.board }
+
+  componentWillMount: ->
+    @props.board.on('board_state_changed', =>
+      @setState(board: @props.board)
+    )
 
   onBoardUpdate: ->
     @setState board: @props.board
@@ -71,12 +77,10 @@ ContainerView = React.createClass
     `<div>
         <AlertView board={this.state.board} />
         <PassView board={this.state.board} />
-        <BoardView board={this.state.board} 
-            onPlay={this.onBoardUpdate.bind(this)} />
+        <BoardView board={this.state.board} onPlay={this.onBoardUpdate.bind(this)} />
     </div>`
 
-game = if getParameterByName('g') then getParameterByName('g') else "game-#{(new Date).valueOf()}"
-window.board = board = new Go.Board({ size: 19, game_id: game })
-board.start_game()
 
-board.view = React.renderComponent `<ContainerView board={board} />`, document.getElementById("main")
+game = if getParameterByName('g') then getParameterByName('g') else "game-#{(new Date).valueOf()}"
+board = new Go.Board({ size: 19, game_id: game })
+React.renderComponent `<ContainerView board={board} />`, document.getElementById("main")

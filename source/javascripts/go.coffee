@@ -23,9 +23,6 @@ class Go.Board extends Backbone.Firebase.Model
 
     @board = @create_board(@size)
 
-  start_game: =>
-    @set(started_at: new Date().valueOf())
-
   # Returns a size x size matrix with all entries initialized to Board.EMPTY
   create_board: (size) ->
     m = []
@@ -97,13 +94,12 @@ class Go.Board extends Backbone.Firebase.Model
 
     @last_move_index += 1
     # Store the move
-    if replaying
-      @view.onBoardUpdate()
-    else
+    unless replaying
       moves = _.clone(@get('moves')) || {}
       moves[@move_number()] = [i,j]
       @set('moves', moves)
     @switch_player()
+    @trigger('board_state_changed')
     true
 
   # Given a board position, returns a list of [i,j] coordinates representing
