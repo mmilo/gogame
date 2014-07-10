@@ -68,11 +68,10 @@ class Go.Game extends Backbone.Firebase.Model
     captured = []
     neighbors = @get_adjacent_intersections(i, j)
     atari = false
-    self = this
-    _.each neighbors, (n) ->
-      state = self.board[n[0]][n[1]]
+    _.each neighbors, (n) =>
+      state = @board[n[0]][n[1]]
       if state isnt Go.EMPTY and state isnt color
-        group = self.get_group(n[0], n[1])
+        group = @get_group(n[0], n[1])
         console.log group
         if group["liberties"] is 0
           captured.push group
@@ -84,10 +83,9 @@ class Go.Game extends Backbone.Firebase.Model
       @board[i][j] = Go.EMPTY
       @attempted_suicide = true
       return false
-    self = this
-    _.each captured, (group) ->
-      _.each group["stones"], (stone) ->
-        self.board[stone[0]][stone[1]] = Go.EMPTY
+    _.each captured, (group) =>
+      _.each group["stones"], (stone) =>
+        @board[stone[0]][stone[1]] = Go.EMPTY
         return
 
       return
@@ -140,9 +138,8 @@ class Go.Game extends Backbone.Firebase.Model
       stone = queue.pop()
       continue  if visited[stone]
       neighbors = @get_adjacent_intersections(stone[0], stone[1])
-      self = this
-      _.each neighbors, (n) ->
-        state = self.board[n[0]][n[1]]
+      _.each neighbors, (n) =>
+        state = @board[n[0]][n[1]]
         count++  if state is Go.EMPTY
         if state is color
           queue.push [n[0], n[1]]
