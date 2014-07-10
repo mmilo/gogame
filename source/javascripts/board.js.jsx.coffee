@@ -33,7 +33,7 @@ BoardView = React.createClass
         j++
       rows.push BoardRow(intersections: intersections)
       i++
-    boardClass = "board turn turn--" + ((if @props.game.current_color is Go.BLACK then "black" else "white"))
+    boardClass = "board turn turn--" + ((if @props.game.current_color() is Go.BLACK then "black" else "white"))
     `<div className='table'>
       <div className={boardClass}>
         <table className='grid'>

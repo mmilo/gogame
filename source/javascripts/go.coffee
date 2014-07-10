@@ -2,28 +2,29 @@
 class Go.Game extends Backbone.Firebase.Model
 
   initialize: (options) =>
-    @current_color = Go.BLACK
     @size = options.size
     @last_move_passed = false
     @in_atari = false
     @attempted_suicide = false
-    @last_move_index = -1
-
+    @played_moves = {}
+    @firebase = "https://intense-fire-8240.firebaseio.com/#{options.game_id}"
+    @board = @create_board(@size)
     @on('change:moves', (model) =>
-      console.log typeof @get('moves')
       # Replay all the moves
       _.each(@get('moves'), (move, key, moves) =>
-        if key > @last_move_index
-          @play(move[0], move[1], true)
-        else
+        # Skip moves that have already been played
+        if @played_moves[key]?
           console.log("not replaying move #{key}, (#{move[0]}, #{move[1]})")
+        else
+          if move == 'pass'
+            @played_moves[key] = 'pass'
+          else
+            # Play the move in replay mode 
+            @play(move[0], move[1], true)
       )
     )
-    @firebase = "https://intense-fire-8240.firebaseio.com/#{options.game_id}"
 
-    @board = @create_board(@size)
-
-  # Returns a size x size matrix with all entries initialized to Board.EMPTY
+  # Returns a size x size matrix with all entries initialized to Go.EMPTY
   create_board: (size) ->
     m = []
     i = 0
@@ -36,20 +37,22 @@ class Go.Game extends Backbone.Firebase.Model
       i++
     m
 
-  # Switches the current player
-  switch_player: ->
-    @current_color = (if @current_color is Go.BLACK then Go.WHITE else Go.BLACK)
-    return
+  current_color: ->
+    if @move_number() % 2 is 0
+      Go.BLACK
+    else
+      Go.WHITE
 
   move_number: ->
-    moves = @get('moves') || {}
-    _.keys(moves).length
+    # The number of keys is automatically the greatest key + 1
+    _.keys(@played_moves).length
 
   # At any point in the game, a player can pass and let his opponent play
   pass: ->
-    @end_game()  if @last_move_passed
+    @end_game() if @last_move_passed
     @last_move_passed = true
-    @switch_player()
+    @store_move('pass')
+    @played_moves = 'pass'
     return
 
   # Called when the game ends (both players passed)
@@ -61,7 +64,7 @@ class Go.Game extends Backbone.Firebase.Model
     console.log "Played at " + i + ", " + j
     @attempted_suicide = @in_atari = false
     return false unless @board[i][j] is Go.EMPTY
-    color = @board[i][j] = @current_color
+    color = @board[i][j] = @current_color()
     captured = []
     neighbors = @get_adjacent_intersections(i, j)
     atari = false
@@ -92,15 +95,19 @@ class Go.Game extends Backbone.Firebase.Model
     @in_atari = true  if atari
     @last_move_passed = false
 
-    @last_move_index += 1
-    # Store the move
+    # Store the move unless we're replaying
     unless replaying
-      moves = _.clone(@get('moves')) || {}
-      moves[@move_number()] = [i,j]
-      @set('moves', moves)
-    @switch_player()
+      @store_move([i,j])
+    # Record that the move has been played
+    @played_moves[@move_number()] = [i,j]
+
     @trigger('board_state_changed')
     true
+
+  store_move: (move) ->
+    moves = _.clone(@get('moves')) || {}
+    moves[@move_number()] = move
+    @set('moves', moves)
 
   # Given a board position, returns a list of [i,j] coordinates representing
   # orthagonally adjacent intersections
