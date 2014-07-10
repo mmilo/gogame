@@ -1,7 +1,7 @@
 ###* @jsx React.DOM ###
 BoardIntersection = React.createClass
   handleClick: ->
-    @props.onPlay()  if @props.board.play(@props.row, @props.col)
+    @props.onPlay()  if @props.game.play(@props.row, @props.col)
     return
 
   render: ->
@@ -18,14 +18,14 @@ BoardView = React.createClass
     rows = []
     i = 0
 
-    while i < @props.board.size
+    while i < @props.game.size
       intersections = []
       j = 0
 
-      while j < @props.board.size
+      while j < @props.game.size
         intersections.push BoardIntersection(
-          board: @props.board
-          color: @props.board.board[i][j]
+          game: @props.game
+          color: @props.game.board[i][j]
           row: i
           col: j
           onPlay: @props.onPlay
@@ -33,7 +33,7 @@ BoardView = React.createClass
         j++
       rows.push BoardRow(intersections: intersections)
       i++
-    boardClass = "board turn turn--" + ((if @props.board.current_color is Go.BLACK then "black" else "white"))
+    boardClass = "board turn turn--" + ((if @props.game.current_color is Go.BLACK then "black" else "white"))
     `<div className='table'>
       <div className={boardClass}>
         <table className='grid'>
@@ -45,15 +45,15 @@ BoardView = React.createClass
 AlertView = React.createClass
   render: ->
     text = ""
-    if @props.board.in_atari
+    if @props.game.in_atari
       text = "ATARI!"
-    else if @props.board.attempted_suicide
+    else if @props.game.attempted_suicide
       text = "SUICIDE!"
     `<div id="alerts">{text}</div>`
 
 PassView = React.createClass
   handleClick: (e) ->
-    @props.board.pass()
+    @props.game.pass()
     return
 
   render: ->
@@ -62,25 +62,25 @@ PassView = React.createClass
 ContainerView = React.createClass
 
   getInitialState: ->
-    { board: @props.board }
+    { game: @props.game }
 
   componentWillMount: ->
-    @props.board.on('board_state_changed', =>
-      @setState(board: @props.board)
+    @props.game.on('board_state_changed', =>
+      @setState(game: @props.game)
     )
 
-  onBoardUpdate: ->
-    @setState board: @props.board
+  onGameUpdate: ->
+    @setState game: @props.game
     return
 
   render: ->
     `<div>
-        <AlertView board={this.state.board} />
-        <PassView board={this.state.board} />
-        <BoardView board={this.state.board} onPlay={this.onBoardUpdate.bind(this)} />
+        <AlertView game={this.state.game} />
+        <PassView game={this.state.game} />
+        <BoardView game={this.state.game} onPlay={this.onGameUpdate.bind(this)} />
     </div>`
 
 
-game = if getParameterByName('g') then getParameterByName('g') else "game-#{(new Date).valueOf()}"
-board = new Go.Board({ size: 19, game_id: game })
-React.renderComponent `<ContainerView board={board} />`, document.getElementById("main")
+gameId = if getParameterByName('g') then getParameterByName('g') else "game-#{(new Date).valueOf()}"
+game = new Go.Game({ size: 19, game_id: gameId })
+React.renderComponent `<ContainerView game={game} />`, document.getElementById("main")

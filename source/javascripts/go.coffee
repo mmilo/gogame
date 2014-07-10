@@ -1,5 +1,5 @@
 # Game logic for the board game Go
-class Go.Board extends Backbone.Firebase.Model
+class Go.Game extends Backbone.Firebase.Model
 
   initialize: (options) =>
     @current_color = Go.BLACK
