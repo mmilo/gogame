@@ -54,15 +54,34 @@ AlertView = React.createClass
 PassView = React.createClass
   handleClick: (e) ->
     @props.game.pass()
-    return
 
   render: ->
     `<input id="pass-btn" type="button" value="Pass" onClick={this.handleClick} />`
 
-ContainerView = React.createClass
+PlayersView = React.createClass
+  handleClick: ->
+    console.log "Joining!"
+    if !@props.game.get('player1')
+      @props.game.set('player1', 'tristan')
+    else if !@props.game.get('player2')
+      @props.game.set('player2', 'tristan')
+    @props.onPlayerAdd()
 
+  render: ->
+    player1 = @props.game.get('player1')
+    player2 = @props.game.get('player2')
+
+    `<div className='players'>
+      <p>{player1 ? player1 : 'waiting for player 1 to join...'}</p>
+      <p>{player2 ? player2 : 'waiting for player 2 to join...'}</p>
+      {!player1 || !player2 ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : ''}
+    </div>
+    `
+
+
+ContainerView = React.createClass
   getInitialState: ->
-    { game: @props.game }
+    {game: @props.game}
 
   componentWillMount: ->
     @props.game.on('board_state_changed', =>
@@ -75,9 +94,10 @@ ContainerView = React.createClass
 
   render: ->
     `<div>
-        <AlertView game={this.state.game} />
-        <PassView game={this.state.game} />
-        <BoardView game={this.state.game} onPlay={this.onGameUpdate.bind(this)} />
+      <AlertView game={this.state.game} />
+      <PassView game={this.state.game} />
+      <PlayersView game={this.state.game} onPlayerAdd={this.onGameUpdate.bind(this)} />
+      <BoardView game={this.state.game} onPlay={this.onGameUpdate.bind(this)} />
     </div>`
 
 
