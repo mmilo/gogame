@@ -13,7 +13,7 @@ class Go.Game extends Backbone.Firebase.Model
       # Replay all the moves
       _.each(@get('moves'), (move, key, moves) =>
         # Skip moves that have already been played
-        if @played_moves[key]?
+        if @played_moves[key] == move
           console.log("not replaying move #{key}, (#{move[0]}, #{move[1]})")
         else
           if move == 'pass'
