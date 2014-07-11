@@ -108,8 +108,8 @@ ContainerView = React.createClass
     `<div>
       <AlertView game={this.state.game} />
       <PassView game={this.state.game} />
-      <PlayersView game={this.state.game} onPlayerAdd={this.onGameUpdate.bind(this)} />
-      <BoardView game={this.state.game} onPlay={this.onGameUpdate.bind(this)} />
+      <PlayersView game={this.state.game} onPlayerAdd={this.onGameUpdate} />
+      <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
     </div>`
 
 
