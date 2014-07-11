@@ -6,7 +6,7 @@ class Go.Game extends Backbone.Firebase.Model
     @resetBoard()
 
     @firebase = "https://intense-fire-8240.firebaseio.com/#{options.game_id}"
-    @on('change:moves', (model) =>
+    @on 'change:moves', (model) =>
       try
         # Play / replay moves
         _.each @get('moves'), (move, key, moves) =>
@@ -18,10 +18,7 @@ class Go.Game extends Backbone.Firebase.Model
             throw("Start over")
           else
             # Replay the new move
-            if move == 'pass'
-              @pass(true)
-            else
-              @play(move[0], move[1], true)
+            @play(move, replaying: true)
        
       catch error
         # Start fresh and replay all the moves
@@ -30,8 +27,7 @@ class Go.Game extends Backbone.Firebase.Model
             if move == 'pass'
               @pass(true)
             else
-              @play(move[0], move[1], true)
-    )
+              @play(move, replaying: true)
 
   resetBoard: =>
     @in_atari = false
@@ -62,21 +58,24 @@ class Go.Game extends Backbone.Firebase.Model
     # The number of keys is automatically the greatest key + 1
     _.keys(@accepted_moves).length
 
-  # At any point in the game, a player can pass and let his opponent play
-  pass: (replaying) ->
-    if @accepted_moves[@move_number()-1] is 'pass'
-      @end_game()
-
-    @accept_move('pass', replaying)
-    return
-
   # Called when the game ends (both players passed)
   end_game: ->
     console.log "GAME OVER"
     return
 
-  play: (i, j, replaying=false) =>
-    console.log "#{if replaying then 'Re-' else ''}Played new move at " + i + ", " + j
+  play: (move, options={}) =>
+    console.log "#{if options.replaying then 'Re-' else ''}Played new move at " + i + ", " + j
+
+    if move is 'pass'
+      @end_game() if @accepted_moves[@move_number()-1] is 'pass'
+      @accept_move('pass', options.replaying)
+      return true
+    else if move[0]? and move[1]?
+      i = move[0] 
+      j = move[1]
+    else
+      throw 'Invalid move attempted'
+
     @attempted_suicide = @in_atari = false
     return false unless @board[i][j] is Go.EMPTY
     color = @board[i][j] = @current_color()
@@ -108,7 +107,7 @@ class Go.Game extends Backbone.Firebase.Model
     @in_atari = true  if atari
 
     # Store the move unless we're replaying
-    @accept_move([i,j], replaying)
+    @accept_move([i,j], options.replaying)
 
     @trigger('board_state_changed')
     true
