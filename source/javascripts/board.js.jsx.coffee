@@ -102,5 +102,7 @@ ContainerView = React.createClass
 
 
 gameId = if getParameterByName('g') then getParameterByName('g') else "game-#{(new Date).valueOf()}"
+console.log gameId
 game = new Go.Game({ size: 19, game_id: gameId })
-React.renderComponent `<ContainerView game={game} />`, document.getElementById("main")
+game.once 'sync', ->
+  React.renderComponent `<ContainerView game={game} />`, document.getElementById("main")
