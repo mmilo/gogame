@@ -5,17 +5,18 @@ class Go.Game extends Backbone.Firebase.Model
     @size = options.size
     @in_atari = false
     @attempted_suicide = false
-    @played_moves = {}
+    @accepted_moves = {}
     @firebase = "https://intense-fire-8240.firebaseio.com/#{options.game_id}"
     @board = @create_board(@size)
     @on('change:moves', (model) =>
       # Replay all the moves
       _.each(@get('moves'), (move, key, moves) =>
         # Skip moves that have already been played
-        if @played_moves[key] == move
-          console.log("not replaying move #{key}, (#{move[0]}, #{move[1]})")
-        else if @played_moves[key]?
+        if _.isEqual(@accepted_moves[key], move)
+          console.log("Not replaying move ##{key}, (#{move[0]}, #{move[1]})")
+        else if @accepted_moves[key]?
           # TODO: REPLAY EVERYTHING
+          console.log "REPLAY EVERYTHING!"
         else
           # Replay the new move
           if move == 'pass'
@@ -46,13 +47,14 @@ class Go.Game extends Backbone.Firebase.Model
 
   move_number: ->
     # The number of keys is automatically the greatest key + 1
-    _.keys(@played_moves).length
+    _.keys(@accepted_moves).length
 
   # At any point in the game, a player can pass and let his opponent play
   pass: (replaying) ->
-    @end_game() if @played_moves[@move_number()] is 'pass'
-    @played_moves[@move_number()] = 'pass'
-    @store_move('pass') unless replaying
+    if @accepted_moves[@move_number()-1] is 'pass'
+      @end_game()
+
+    @accept_move('pass', replaying)
     return
 
   # Called when the game ends (both players passed)
@@ -61,7 +63,7 @@ class Go.Game extends Backbone.Firebase.Model
     return
 
   play: (i, j, replaying=false) =>
-    console.log "Played at " + i + ", " + j
+    console.log "#{if replaying then 'Re-' else ''}Played new move at " + i + ", " + j
     @attempted_suicide = @in_atari = false
     return false unless @board[i][j] is Go.EMPTY
     color = @board[i][j] = @current_color()
@@ -93,18 +95,18 @@ class Go.Game extends Backbone.Firebase.Model
     @in_atari = true  if atari
 
     # Store the move unless we're replaying
-    unless replaying
-      @store_move([i,j])
-    # Record that the move has been played
-    @played_moves[@move_number()] = [i,j]
+    @accept_move([i,j], replaying)
 
     @trigger('board_state_changed')
     true
 
-  store_move: (move) ->
-    moves = _.clone(@get('moves')) || {}
-    moves[@move_number()] = move
-    @set('moves', moves)
+  accept_move: (move, replaying=false) ->
+    move_number = @move_number()
+    @accepted_moves[move_number] = move
+    unless replaying
+      moves = _.clone(@get('moves')) || {}
+      moves[move_number] = move
+      @set('moves', moves)
 
   # Given a board position, returns a list of [i,j] coordinates representing
   # orthagonally adjacent intersections

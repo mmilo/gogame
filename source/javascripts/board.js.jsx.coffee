@@ -126,6 +126,6 @@ unless gameId?
   return
 
 console.log gameId
-game = new Go.Game({ size: 19, game_id: gameId })
+window.game = new Go.Game({ size: 19, game_id: gameId })
 game.once 'sync', ->
   React.renderComponent `<ContainerView game={game} />`, document.getElementById("main")
