@@ -59,6 +59,11 @@ PassView = React.createClass
     `<input id="pass-btn" type="button" value="Pass" onClick={this.handleClick} />`
 
 PlayersView = React.createClass
+  componentWillMount: ->
+    @props.game.on('change:player1 change:player2', =>
+      @setState(game: @props.game)
+    )
+
   handleClick: ->
     console.log "Joining!"
     if !@props.game.get('player1')
