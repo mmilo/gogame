@@ -66,10 +66,17 @@ PlayersView = React.createClass
 
   handleClick: ->
     console.log "Joining!"
+    if Go.current_user?
+      console.log 'uid '+ Go.current_user.uid
+      userId = Go.current_user.uid
+    else
+      auth.login('twitter', {preferRedirect: true, rememberMe: true})
+      return
+
     if !@props.game.get('player1')
-      @props.game.set('player1', 'tristan')
+      @props.game.set('player1', userId)
     else if !@props.game.get('player2')
-      @props.game.set('player2', 'tristan')
+      @props.game.set('player2', userId)
     @props.onPlayerAdd()
 
   render: ->
@@ -104,6 +111,12 @@ ContainerView = React.createClass
       <PlayersView game={this.state.game} onPlayerAdd={this.onGameUpdate.bind(this)} />
       <BoardView game={this.state.game} onPlay={this.onGameUpdate.bind(this)} />
     </div>`
+
+
+chatRef = new Firebase("https://intense-fire-8240.firebaseio.com/")
+auth = new FirebaseSimpleLogin(chatRef, (error, user) ->
+  Go.current_user = user
+)
 
 
 gameId = if getParameterByName('g') then getParameterByName('g') else "game-#{(new Date).valueOf()}"
