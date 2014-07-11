@@ -119,7 +119,12 @@ auth = new FirebaseSimpleLogin(chatRef, (error, user) ->
 )
 
 
-gameId = if getParameterByName('g') then getParameterByName('g') else "game-#{(new Date).valueOf()}"
+gameId = getParameterByName('g')
+unless gameId?
+  gameId = "game-#{(new Date).valueOf()}"
+  window.location.replace("#{window.location.protocol}//#{window.location.host}/?g=#{gameId}")
+  return
+
 console.log gameId
 game = new Go.Game({ size: 19, game_id: gameId })
 game.once 'sync', ->
