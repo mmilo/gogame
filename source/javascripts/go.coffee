@@ -3,7 +3,6 @@ class Go.Game extends Backbone.Firebase.Model
 
   initialize: (options) =>
     @size = options.size
-    @last_move_passed = false
     @in_atari = false
     @attempted_suicide = false
     @played_moves = {}
@@ -15,11 +14,13 @@ class Go.Game extends Backbone.Firebase.Model
         # Skip moves that have already been played
         if @played_moves[key] == move
           console.log("not replaying move #{key}, (#{move[0]}, #{move[1]})")
+        else if @played_moves[key]?
+          # TODO: REPLAY EVERYTHING
         else
+          # Replay the new move
           if move == 'pass'
-            @played_moves[key] = 'pass'
+            @pass(true)
           else
-            # Play the move in replay mode 
             @play(move[0], move[1], true)
       )
     )
@@ -48,11 +49,10 @@ class Go.Game extends Backbone.Firebase.Model
     _.keys(@played_moves).length
 
   # At any point in the game, a player can pass and let his opponent play
-  pass: ->
-    @end_game() if @last_move_passed
-    @last_move_passed = true
-    @store_move('pass')
-    @played_moves = 'pass'
+  pass: (replaying) ->
+    @end_game() if @played_moves[@move_number()] is 'pass'
+    @played_moves[@move_number()] = 'pass'
+    @store_move('pass') unless replaying
     return
 
   # Called when the game ends (both players passed)
@@ -91,7 +91,6 @@ class Go.Game extends Backbone.Firebase.Model
       return
 
     @in_atari = true  if atari
-    @last_move_passed = false
 
     # Store the move unless we're replaying
     unless replaying
