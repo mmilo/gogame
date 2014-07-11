@@ -42,6 +42,14 @@ BoardView = React.createClass
       </div>
     </div>`
 
+NewGameView = React.createClass
+  handleClick: ->
+    gameId = "game-#{(new Date).valueOf()}"
+    window.location.replace("#{window.location.protocol}//#{window.location.host}/?g=#{gameId}")
+    return
+  render: ->
+    `<input type="button" value="New Game" onClick={this.handleClick} />`
+
 AlertView = React.createClass
   render: ->
     text = ""
@@ -84,8 +92,8 @@ PlayersView = React.createClass
     player2 = @props.game.get('player2')
 
     `<div className='players'>
-      <p>{player1 ? player1 : 'waiting for player 1 to join...'}</p>
-      <p>{player2 ? player2 : 'waiting for player 2 to join...'}</p>
+      <p className={player1 ? '' : 'waiting'}>{player1 ? player1 : 'waiting for player 1 to join...'}</p>
+      <p className={player2 ? '' : 'waiting'}>{player2 ? player2 : 'waiting for player 2 to join...'}</p>
       {!player1 || !player2 ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : ''}
     </div>
     `
@@ -106,10 +114,11 @@ ContainerView = React.createClass
 
   render: ->
     `<div>
+      <NewGameView />
       <AlertView game={this.state.game} />
-      <PassView game={this.state.game} />
       <PlayersView game={this.state.game} onPlayerAdd={this.onGameUpdate} />
       <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
+      <PassView game={this.state.game} />
     </div>`
 
 
@@ -120,12 +129,9 @@ auth = new FirebaseSimpleLogin(chatRef, (error, user) ->
 
 
 gameId = getParameterByName('g')
-unless gameId?
-  gameId = "game-#{(new Date).valueOf()}"
-  window.location.replace("#{window.location.protocol}//#{window.location.host}/?g=#{gameId}")
-  return
+if gameId?
+  window.game = new Go.Game({ size: 19, game_id: gameId })
+  game.once 'sync', -> React.renderComponent `<ContainerView game={game} />`, document.getElementById("main")
+else
+  React.renderComponent `<NewGameView />`, document.getElementById("main")
 
-console.log gameId
-window.game = new Go.Game({ size: 19, game_id: gameId })
-game.once 'sync', ->
-  React.renderComponent `<ContainerView game={game} />`, document.getElementById("main")

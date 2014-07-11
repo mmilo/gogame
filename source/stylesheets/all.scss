@@ -1,5 +1,13 @@
 @charset "utf-8";
-
+body {
+  text-align: center;
+}
+.players{
+  margin: 0 0 2em 0;
+  p.waiting{
+    opacity: 0.5;
+  }
+}
 .table {
   position: relative;  
   margin: 0 auto;
