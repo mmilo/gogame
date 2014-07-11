@@ -3,28 +3,41 @@ class Go.Game extends Backbone.Firebase.Model
 
   initialize: (options) =>
     @size = options.size
+    @resetBoard()
+
+    @firebase = "https://intense-fire-8240.firebaseio.com/#{options.game_id}"
+    @on('change:moves', (model) =>
+      try
+        # Play / replay moves
+        _.each @get('moves'), (move, key, moves) =>
+          # Skip moves that have already been played
+          if _.isEqual(@accepted_moves[key], move)
+            console.log("Not replaying move ##{key}, (#{move[0]}, #{move[1]})")
+          else if @accepted_moves[key]?
+            console.log "REPLAY EVERYTHING!"
+            throw("Start over")
+          else
+            # Replay the new move
+            if move == 'pass'
+              @pass(true)
+            else
+              @play(move[0], move[1], true)
+       
+      catch error
+        # Start fresh and replay all the moves
+        @resetBoard()
+        _.each @get('moves'), (move, key, moves) =>
+            if move == 'pass'
+              @pass(true)
+            else
+              @play(move[0], move[1], true)
+    )
+
+  resetBoard: =>
     @in_atari = false
     @attempted_suicide = false
     @accepted_moves = {}
-    @firebase = "https://intense-fire-8240.firebaseio.com/#{options.game_id}"
     @board = @create_board(@size)
-    @on('change:moves', (model) =>
-      # Replay all the moves
-      _.each(@get('moves'), (move, key, moves) =>
-        # Skip moves that have already been played
-        if _.isEqual(@accepted_moves[key], move)
-          console.log("Not replaying move ##{key}, (#{move[0]}, #{move[1]})")
-        else if @accepted_moves[key]?
-          # TODO: REPLAY EVERYTHING
-          console.log "REPLAY EVERYTHING!"
-        else
-          # Replay the new move
-          if move == 'pass'
-            @pass(true)
-          else
-            @play(move[0], move[1], true)
-      )
-    )
 
   # Returns a size x size matrix with all entries initialized to Go.EMPTY
   create_board: (size) ->
