@@ -69,18 +69,20 @@ PassView = React.createClass
 UserSessionView = React.createClass
   getInitialState: ->
     signingUp: false
+    loggingIn: false
 
   logout: ->
     auth.logout()
+    @setState(loggingIn: false, signingUp: false)
 
   loginWithTwitter: ->
     auth.login('twitter', {preferRedirect: true, rememberMe: true})
 
   signupWithEmail: ->
-    @setState(signingUp: true)
+    @setState(signingUp: true, loggingIn: false)
 
-  loginWithEmail: (email, password) ->
-    auth.login('password', {email: email, password: password, rememberMe: true})
+  loginWithEmail: ->
+    @setState(loggingIn: true, signingUp: false)
 
   render: ->
     if @props.current_user?
@@ -89,7 +91,9 @@ UserSessionView = React.createClass
         <input type="button" value="logout" onClick={this.logout} />
       </div>`
     else if @state.signingUp
-      `<SignupForm onSuccess={this.loginWithEmail} />`
+      `<SignupAndLoginForm mode='signup' />`
+    else if @state.loggingIn
+      `<SignupAndLoginForm mode='login' />`
     else
       `<div>
         <input type="button" value="Login with Twitter" onClick={this.loginWithTwitter} />
@@ -97,25 +101,32 @@ UserSessionView = React.createClass
         <input type="button" value="Signup with email" onClick={this.signupWithEmail} />
       </div>`
 
-SignupForm = React.createClass
+SignupAndLoginForm = React.createClass
   getInitialState: ->
-    email: "t-#{new Date().valueOf()}@gamilis.com"
-    password: ''
+    state = {}
+    state.email = if @props.mode is 'signup' then "t-#{new Date().valueOf()}@gamilis.com" else ''
+    state.password = ''
+    state
 
   onChange: (e) ->
     state = {}
     state[$(e.target).attr('name')] = $(e.target).val()
     @setState(state)
 
+  submitLogin: (email, password) ->
+    auth.login('password', {email: email, password: password, rememberMe: true})
+
   handleSubmit: ->
-    auth.createUser @state.email, @state.password, (error, user) =>
-      if error
-        alert(error)
-      else
-        @props.onSuccess(@state.email, @state.password)
+    if @props.mode is 'signup'
+      auth.createUser @state.email, @state.password, (error, user) =>
+        return alert(error) if error
+        @submitLogin(@state.email, @state.password)
+    else
+      @submitLogin(@state.email, @state.password)
 
   render: ->
     `<div>
+      {this.props.mode}:
       <input type="text" name="email" value={this.state.email} placeholder='you@email.com' onChange={this.onChange} />
       <input type="password" name="password" value={this.state.password} placeholder='password' onChange={this.onChange} />
       <input type="button" value="submit" onClick={this.handleSubmit} />
@@ -132,9 +143,9 @@ PlayersView = React.createClass
     if !@props.current_user?
       alert('You must log in to join the game')
       return false
-    else
-      userId = @props.current_user.uid
 
+    # Take the first available spot
+    userId = @props.current_user.uid
     if !@props.game.get('player1')
       @props.game.set('player1', userId)
     else if !@props.game.get('player2')
