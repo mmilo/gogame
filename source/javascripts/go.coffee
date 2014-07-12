@@ -7,10 +7,22 @@ class Go.Game extends Backbone.Firebase.Model
 
     @firebase = "https://intense-fire-8240.firebaseio.com/games/#{options.game_id}"
 
+    # On initial sync with Firebase, force persistence by setting the started_at attribute.
+    # The shitty timeout is there because Firebase still doesn't seem to be ready when the sync
+    # event fires.
+    @once 'sync', =>
+      unless @get('started_at')?
+        setTimeout =>
+          @set(started_at: new Date().valueOf())
+        , 500
+
     @on 'change:moves', (model) =>
       try
+        unless _.isObject(@get('moves'))
+          throw("Not valid moves - rollback")
         if _.keys(@accepted_moves).length > _.keys(@get('moves')).length
           throw("Firebase rejected a move - rollback")
+
         # Play / replay moves
         _.each @get('moves'), (move, key, moves) =>
           # Skip moves that have already been played
@@ -23,6 +35,7 @@ class Go.Game extends Backbone.Firebase.Model
             @play(move, replaying: true)
        
       catch error
+        console.log "ERROR: #{error}"
         # Start fresh and replay all the moves
         @resetBoard()
         _.each @get('moves'), (move, key, moves) => @play(move, replaying: true)
@@ -32,6 +45,7 @@ class Go.Game extends Backbone.Firebase.Model
     @attempted_suicide = false
     @accepted_moves = {}
     @board = @create_board()
+    @trigger('board_state_changed')
 
   # Returns a size x size matrix with all entries initialized to Go.EMPTY
   create_board: =>
