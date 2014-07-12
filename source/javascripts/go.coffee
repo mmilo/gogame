@@ -6,16 +6,18 @@ class Go.Game extends Backbone.Firebase.Model
     @resetBoard()
 
     @firebase = "https://intense-fire-8240.firebaseio.com/games/#{options.game_id}"
+
     @on 'change:moves', (model) =>
       try
+        if _.keys(@accepted_moves).length > _.keys(@get('moves')).length
+          throw("Firebase rejected a move - rollback")
         # Play / replay moves
         _.each @get('moves'), (move, key, moves) =>
           # Skip moves that have already been played
           if _.isEqual(@accepted_moves[key], move)
             console.log("Not replaying move ##{key}, (#{move[0]}, #{move[1]})")
           else if @accepted_moves[key]?
-            console.log "REPLAY EVERYTHING!"
-            throw("Start over")
+            throw("Conflict in moves - Start over")
           else
             # Replay the new move
             @play(move, replaying: true)
