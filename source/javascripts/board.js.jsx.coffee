@@ -66,6 +66,61 @@ PassView = React.createClass
   render: ->
     `<input id="pass-btn" type="button" value="Pass" onClick={this.handleClick} />`
 
+UserSessionView = React.createClass
+  getInitialState: ->
+    signingUp: false
+
+  logout: ->
+    auth.logout()
+
+  loginWithTwitter: ->
+    auth.login('twitter', {preferRedirect: true, rememberMe: true})
+
+  signupWithEmail: ->
+    @setState(signingUp: true)
+
+  loginWithEmail: (email, password) ->
+    auth.login('password', {email: email, password: password, rememberMe: true})
+
+  render: ->
+    if @props.current_user?
+      `<div>
+        Logged in as: {this.props.current_user.uid}
+        <input type="button" value="logout" onClick={this.logout} />
+      </div>`
+    else if @state.signingUp
+      `<SignupForm onSuccess={this.loginWithEmail} />`
+    else
+      `<div>
+        <input type="button" value="Login with Twitter" onClick={this.loginWithTwitter} />
+        <input type="button" value="Login with Email" onClick={this.loginWithEmail} />
+        <input type="button" value="Signup with email" onClick={this.signupWithEmail} />
+      </div>`
+
+SignupForm = React.createClass
+  getInitialState: ->
+    email: "t-#{new Date().valueOf()}@gamilis.com"
+    password: ''
+
+  onChange: (e) ->
+    state = {}
+    state[$(e.target).attr('name')] = $(e.target).val()
+    @setState(state)
+
+  handleSubmit: ->
+    auth.createUser @state.email, @state.password, (error, user) =>
+      if error
+        alert(error)
+      else
+        @props.onSuccess(@state.email, @state.password)
+
+  render: ->
+    `<div>
+      <input type="text" name="email" value={this.state.email} placeholder='you@email.com' onChange={this.onChange} />
+      <input type="password" name="password" value={this.state.password} placeholder='password' onChange={this.onChange} />
+      <input type="button" value="submit" onClick={this.handleSubmit} />
+    </div>`
+
 PlayersView = React.createClass
   componentWillMount: ->
     @props.game.on('change:player1 change:player2', =>
@@ -74,12 +129,11 @@ PlayersView = React.createClass
 
   handleClick: ->
     console.log "Joining!"
-    if Go.current_user?
-      console.log 'uid '+ Go.current_user.uid
-      userId = Go.current_user.uid
+    if !@props.current_user?
+      alert('You must log in to join the game')
+      return false
     else
-      auth.login('twitter', {preferRedirect: true, rememberMe: true})
-      return
+      userId = @props.current_user.uid
 
     if !@props.game.get('player1')
       @props.game.set('player1', userId)
@@ -101,12 +155,14 @@ PlayersView = React.createClass
 
 ContainerView = React.createClass
   getInitialState: ->
-    {game: @props.game}
+    game: @props.game
+    current_user: @props.environment.current_user
 
   componentWillMount: ->
-    @props.game.on('board_state_changed', =>
+    @props.game.on 'board_state_changed', =>
       @setState(game: @props.game)
-    )
+    @props.environment.on 'change:current_user', =>
+      @setState(current_user: @props.environment.current_user)
 
   onGameUpdate: ->
     @setState game: @props.game
@@ -114,9 +170,10 @@ ContainerView = React.createClass
 
   render: ->
     `<div>
+      <UserSessionView current_user={this.state.current_user} />
       <NewGameView />
       <AlertView game={this.state.game} />
-      <PlayersView game={this.state.game} onPlayerAdd={this.onGameUpdate} />
+      <PlayersView game={this.state.game} onPlayerAdd={this.onGameUpdate} current_user={this.state.current_user} />
       <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
       <PassView game={this.state.game} />
     </div>`
@@ -125,13 +182,14 @@ ContainerView = React.createClass
 chatRef = new Firebase("https://intense-fire-8240.firebaseio.com/")
 auth = new FirebaseSimpleLogin(chatRef, (error, user) ->
   Go.current_user = user
+  Go.trigger('change:current_user')
 )
 
 
 gameId = getParameterByName('g')
 if gameId?
   window.game = new Go.Game({ size: 19, game_id: gameId })
-  game.once 'sync', -> React.renderComponent `<ContainerView game={game} />`, document.getElementById("main")
+  game.once 'sync', -> React.renderComponent `<ContainerView game={game} environment={Go} />`, document.getElementById("main")
 else
   React.renderComponent `<NewGameView />`, document.getElementById("main")
 

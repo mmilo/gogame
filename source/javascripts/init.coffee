@@ -3,3 +3,4 @@ window.Go = {
   BLACK: 1
   WHITE: 2
 }
+_.extend(Go, Backbone.Events)
