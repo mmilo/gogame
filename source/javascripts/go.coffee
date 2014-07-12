@@ -5,7 +5,7 @@ class Go.Game extends Backbone.Firebase.Model
     @size = options.size
     @resetBoard()
 
-    @firebase = "https://intense-fire-8240.firebaseio.com/#{options.game_id}"
+    @firebase = "https://intense-fire-8240.firebaseio.com/games/#{options.game_id}"
     @on 'change:moves', (model) =>
       try
         # Play / replay moves

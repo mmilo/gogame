@@ -44,7 +44,7 @@ BoardView = React.createClass
 
 NewGameView = React.createClass
   handleClick: ->
-    gameId = "game-#{(new Date).valueOf()}"
+    gameId = new Date().valueOf()
     window.location.replace("#{window.location.protocol}//#{window.location.host}/?g=#{gameId}")
     return
   render: ->
