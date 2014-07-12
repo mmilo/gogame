@@ -76,14 +76,21 @@ class Go.Game extends Backbone.Firebase.Model
     return
 
   play: (move, options={}) =>
-    console.log "#{if options.replaying then 'Re-' else ''}Played new move at " + i + ", " + j
+    console.log "#{if options.replaying then 'Re-' else ''}Played new move at " + move[0] + ", " + move[1]
+
+    # Only permit each player to take their own turn
+    unless options.replaying
+      uid = Go.current_user.uid
+      if !Go.current_user? or (@current_color() is Go.BLACK and uid isnt @get('player1')) or (@current_color() is Go.WHITE and uid isnt @get('player2'))
+        console.warn "Ignoring move played out of turn."
+        return false
 
     if move is 'pass'
       @end_game() if @accepted_moves[@move_number()-1] is 'pass'
       @accept_move('pass', options.replaying)
       return true
     else if move[0]? and move[1]?
-      i = move[0] 
+      i = move[0]
       j = move[1]
     else
       throw 'Invalid move attempted'
