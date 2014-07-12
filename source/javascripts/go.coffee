@@ -31,16 +31,16 @@ class Go.Game extends Backbone.Firebase.Model
     @in_atari = false
     @attempted_suicide = false
     @accepted_moves = {}
-    @board = @create_board(@size)
+    @board = @create_board()
 
   # Returns a size x size matrix with all entries initialized to Go.EMPTY
-  create_board: (size) ->
+  create_board: =>
     m = []
     i = 0
-    while i < size
+    while i < @size
       m[i] = []
       j = 0
-      while j < size
+      while j < @size
         m[i][j] = Go.EMPTY
         j++
       i++
