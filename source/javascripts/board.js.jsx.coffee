@@ -76,7 +76,7 @@ UserSessionView = React.createClass
     @setState(loggingIn: false, signingUp: false)
 
   loginWithTwitter: ->
-    auth.login('twitter', {preferRedirect: true, rememberMe: true})
+    auth.login('twitter', {rememberMe: true})
 
   signupWithEmail: ->
     @setState(signingUp: true, loggingIn: false)
