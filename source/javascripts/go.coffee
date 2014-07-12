@@ -1,7 +1,7 @@
 # Game logic for the board game Go
 class Go.Game extends Backbone.Firebase.Model
 
-  initialize: (options) =>
+  initialize: (attributes, options) =>
     @size = options.size
     @resetBoard()
 
