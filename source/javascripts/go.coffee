@@ -25,11 +25,7 @@ class Go.Game extends Backbone.Firebase.Model
       catch error
         # Start fresh and replay all the moves
         @resetBoard()
-        _.each @get('moves'), (move, key, moves) =>
-            if move == 'pass'
-              @pass(true)
-            else
-              @play(move, replaying: true)
+        _.each @get('moves'), (move, key, moves) => @play(move, replaying: true)
 
   resetBoard: =>
     @in_atari = false
