@@ -182,6 +182,7 @@ ContainerView = React.createClass
   render: ->
     `<div>
       <UserSessionView current_user={this.state.current_user} />
+      <hr />
       <NewGameView />
       <AlertView game={this.state.game} />
       <PlayersView game={this.state.game} onPlayerAdd={this.onGameUpdate} current_user={this.state.current_user} />
