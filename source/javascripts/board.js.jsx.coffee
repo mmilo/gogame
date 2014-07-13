@@ -134,7 +134,7 @@ SignupAndLoginForm = React.createClass
 
 PlayersView = React.createClass
   componentWillMount: ->
-    @props.game.on('change:player1 change:player2', =>
+    @props.game.on('change:players', =>
       @setState(game: @props.game)
     )
 
@@ -145,16 +145,14 @@ PlayersView = React.createClass
       return false
 
     # Take the first available spot
-    userId = @props.current_user.uid
-    if !@props.game.get('player1')
-      @props.game.set('player1', userId)
-    else if !@props.game.get('player2')
-      @props.game.set('player2', userId)
-    @props.onPlayerAdd()
+    if @props.game.join(@props.current_user.uid)
+      @props.onPlayerAdd()
+    else
+      alert("Sorry, there isn't place available for you in this game.")
 
   render: ->
-    player1 = @props.game.get('player1')
-    player2 = @props.game.get('player2')
+    player1 = @props.game.players()[Go.BLACK]
+    player2 = @props.game.players()[Go.WHITE]
 
     `<div className='players'>
       <p className={player1 ? '' : 'waiting'}>{player1 ? player1 : 'waiting for player 1 to join...'}</p>

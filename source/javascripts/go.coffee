@@ -47,6 +47,19 @@ class Go.Game extends Backbone.Firebase.Model
     @board = @create_board()
     @trigger('board_state_changed')
 
+  join: (userId) =>
+    players = _.clone(@players()) || {}
+    if !players[Go.BLACK]?
+      players[Go.BLACK] = userId
+    else if !players[Go.WHITE]?
+      players[Go.WHITE] = userId
+    else
+      # No available place
+      return false
+    @set('players', players)
+    console.log @players()
+    true
+
   # Returns a size x size matrix with all entries initialized to Go.EMPTY
   create_board: =>
     m = []
@@ -59,6 +72,9 @@ class Go.Game extends Backbone.Firebase.Model
         j++
       i++
     m
+
+  # Always return an object
+  players: -> @get('players') || {}
 
   current_color: ->
     if @move_number() % 2 is 0
@@ -79,11 +95,9 @@ class Go.Game extends Backbone.Firebase.Model
     console.log "#{if options.replaying then 'Re-' else ''}Played new move at " + move[0] + ", " + move[1]
 
     # Only permit each player to take their own turn
-    unless options.replaying
-      uid = Go.current_user.uid
-      if !Go.current_user? or (@current_color() is Go.BLACK and uid isnt @get('player1')) or (@current_color() is Go.WHITE and uid isnt @get('player2'))
-        console.warn "Ignoring move played out of turn."
-        return false
+    if !options.replaying and @players()[@current_color()] isnt Go.current_user.uid
+      console.warn "Ignoring move played out of turn."
+      return false
 
     if move is 'pass'
       @end_game() if @accepted_moves[@move_number()-1] is 'pass'
