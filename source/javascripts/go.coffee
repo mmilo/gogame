@@ -6,6 +6,9 @@ class Go.Game extends Backbone.Model
 
     @firebase = new Firebase("https://intense-fire-8240.firebaseio.com/games/#{options.game_id}")
 
+    @firebase.child('players').on 'value', (snapshot) =>
+      @players = snapshot.val() || {}
+
     @firebase.child('moves').on 'value', (snapshot) =>
       moves = snapshot.val()
       try
@@ -39,17 +42,15 @@ class Go.Game extends Backbone.Model
     @trigger('board_state_changed')
 
   join: (userId) =>
-    @firebase.child('players').once 'value', (snapshot) =>
-      players = snapshot.val() || {}
-      if !players[Go.BLACK]?
-        @firebase.child('players').child(Go.BLACK).set(userId)
-        return true
-      else if !players[Go.WHITE]?
-        @firebase.child('players').child(Go.WHITE).set(userId)
-        return true
-      else
-        # No available place
-        return false
+    if !@players[Go.BLACK]?
+      @firebase.child('players').child(Go.BLACK).set(userId)
+      return true
+    else if !@players[Go.WHITE]?
+      @firebase.child('players').child(Go.WHITE).set(userId)
+      return true
+    else
+      # No available place
+      return false
 
   # Returns a size x size matrix with all entries initialized to Go.EMPTY
   create_board: =>
@@ -83,7 +84,7 @@ class Go.Game extends Backbone.Model
     console.log "#{if options.replaying then 'Re-' else ''}Played new move at " + move[0] + ", " + move[1]
 
     # Only permit each player to take their own turn
-    if !options.replaying and @players()[@current_color()] isnt Go.current_user.uid
+    if !options.replaying and @players[@current_color()] isnt Go.current_user.uid
       console.warn "Ignoring move played out of turn."
       return false
 
@@ -137,10 +138,7 @@ class Go.Game extends Backbone.Model
     move_number = @move_number()
     @accepted_moves[move_number] = move
     unless replaying
-      console.log 'TODO: Save the move'
-      #moves = _.clone(@get('moves')) || {}
-      #moves[move_number] = move
-      #@set('moves', moves)
+      @firebase.child('moves').child(@move_number()).set(move)
 
   # Given a board position, returns a list of [i,j] coordinates representing
   # orthagonally adjacent intersections
