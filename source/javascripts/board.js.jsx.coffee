@@ -175,7 +175,6 @@ ContainerView = React.createClass
     return
 
   render: ->
-    ###
     `<div>
       <UserSessionView current_user={this.state.current_user} />
       <hr />
@@ -184,13 +183,6 @@ ContainerView = React.createClass
       <PlayersView game={this.state.game} current_user={this.state.current_user} />
       <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
       <PassView game={this.state.game} />
-    </div>`
-    ###
-    `<div>
-      <UserSessionView current_user={this.state.current_user} />
-      <hr />
-      <PlayersView game={this.state.game} current_user={this.state.current_user} />
-      <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
     </div>`
 
 

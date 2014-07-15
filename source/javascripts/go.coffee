@@ -14,15 +14,16 @@ class Go.Game extends Backbone.Model
       try
         unless moves?
           throw("Firebase thinks there are no moves. Rollback")
-        if _.keys(@accepted_moves).length > _.keys(moves).length
+        if @accepted_moves.length > _.keys(moves).length
           throw("Firebase rejected a move - rollback")
 
         # Play / replay moves
         _.each moves, (move, key, moves) =>
+          debugger
           # Skip moves that have already been played
-          if _.isEqual(@accepted_moves[key], move)
-            console.log("Not replaying move ##{key}, (#{move[0]}, #{move[1]})")
-          else if @accepted_moves[key]?
+          if _.isEqual(@accepted_moves[move.index], move)
+            console.log("Not replaying move ##{move.index}, (#{move[0]}, #{move[1]})")
+          else if @accepted_moves[move.index]?
             throw("Conflict in moves - Start over")
           else
             # Replay the new move
@@ -37,7 +38,7 @@ class Go.Game extends Backbone.Model
   resetBoard: =>
     @in_atari = false
     @attempted_suicide = false
-    @accepted_moves = {}
+    @accepted_moves = []
     @board = @create_board()
     @trigger('board_state_changed')
 
@@ -73,7 +74,7 @@ class Go.Game extends Backbone.Model
 
   move_number: ->
     # The number of keys is automatically the greatest key + 1
-    _.keys(@accepted_moves).length
+    @accepted_moves.length
 
   # Called when the game ends (both players passed)
   end_game: ->
@@ -135,10 +136,12 @@ class Go.Game extends Backbone.Model
     true
 
   accept_move: (move, replaying=false) ->
-    move_number = @move_number()
-    @accepted_moves[move_number] = move
-    unless replaying
-      @firebase.child('moves').child(@move_number()).set(move)
+    # Set the numerical index of the move on it for storage
+    move.index = @move_number()
+    # Register that it's been played at that index in the @accepted_moves
+    @accepted_moves[move.index] = move
+    # Store it in Firebase
+    @firebase.child('moves').push(move) unless replaying
 
   # Given a board position, returns a list of [i,j] coordinates representing
   # orthagonally adjacent intersections
