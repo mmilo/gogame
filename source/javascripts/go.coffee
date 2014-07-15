@@ -19,7 +19,6 @@ class Go.Game extends Backbone.Model
 
         # Play / replay moves
         _.each moves, (move, key, moves) =>
-          debugger
           # Skip moves that have already been played
           if _.isEqual(@accepted_moves[move.index], move)
             console.log("Not replaying move ##{move.index}, (#{move[0]}, #{move[1]})")
