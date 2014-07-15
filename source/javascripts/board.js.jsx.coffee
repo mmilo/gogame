@@ -133,31 +133,28 @@ SignupAndLoginForm = React.createClass
     </div>`
 
 PlayersView = React.createClass
+  getInitialState: ->
+    black_player: null
+    white_player: null
+
   componentWillMount: ->
-    @props.game.on('change:players', =>
-      @setState(game: @props.game)
-    )
+    @props.game.firebase.child('players').on 'value', (snapshot) =>
+      players = snapshot.val() || {}
+      @setState
+        black_player: players[Go.BLACK]
+        white_player: players[Go.WHITE]
 
   handleClick: ->
-    console.log "Joining!"
-    if !@props.current_user?
-      alert('You must log in to join the game')
-      return false
-
-    # Take the first available spot
-    if @props.game.join(@props.current_user.uid)
-      @props.onPlayerAdd()
+    if @props.current_user?
+      @props.game.join(@props.current_user.uid)
     else
-      alert("Sorry, there isn't place available for you in this game.")
+      return alert('You must log in to join the game')
 
   render: ->
-    player1 = @props.game.players()[Go.BLACK]
-    player2 = @props.game.players()[Go.WHITE]
-
     `<div className='players'>
-      <p className={player1 ? '' : 'waiting'}>{player1 ? player1 : 'waiting for player 1 to join...'}</p>
-      <p className={player2 ? '' : 'waiting'}>{player2 ? player2 : 'waiting for player 2 to join...'}</p>
-      {!player1 || !player2 ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : ''}
+      <p className={this.state.black_player ? '' : 'waiting'}>{this.state.black_player ? this.state.black_player : 'waiting for player 1 to join...'}</p>
+      <p className={this.state.white_player ? '' : 'waiting'}>{this.state.white_player ? this.state.white_player : 'waiting for player 2 to join...'}</p>
+      {!this.state.black_player || !this.state.white_player ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : ''}
     </div>
     `
 
@@ -168,7 +165,7 @@ ContainerView = React.createClass
     current_user: @props.environment.current_user
 
   componentWillMount: ->
-    @props.game.on 'board_state_changed', =>
+    @props.game.firebase.child('moves').on 'value', =>
       @setState(game: @props.game)
     @props.environment.on 'change:current_user', =>
       @setState(current_user: @props.environment.current_user)
@@ -178,14 +175,22 @@ ContainerView = React.createClass
     return
 
   render: ->
+    ###
     `<div>
       <UserSessionView current_user={this.state.current_user} />
       <hr />
       <NewGameView />
       <AlertView game={this.state.game} />
-      <PlayersView game={this.state.game} onPlayerAdd={this.onGameUpdate} current_user={this.state.current_user} />
+      <PlayersView game={this.state.game} current_user={this.state.current_user} />
       <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
       <PassView game={this.state.game} />
+    </div>`
+    ###
+    `<div>
+      <UserSessionView current_user={this.state.current_user} />
+      <hr />
+      <PlayersView game={this.state.game} current_user={this.state.current_user} />
+      <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
     </div>`
 
 
@@ -196,10 +201,9 @@ auth = new FirebaseSimpleLogin(chatRef, (error, user) ->
 )
 
 
-gameId = getParameterByName('g')
-if gameId?
-  window.game = new Go.Game({}, { size: 19, game_id: gameId })
-  game.once 'sync', -> React.renderComponent `<ContainerView game={game} environment={Go} />`, document.getElementById("main")
+if (gameId = getParameterByName('g'))?
+  window.game = new Go.Game({ size: 19, game_id: gameId })
+  React.renderComponent `<ContainerView game={game} environment={Go} />`, document.getElementById("main")
 else
   React.renderComponent `<NewGameView />`, document.getElementById("main")
 
