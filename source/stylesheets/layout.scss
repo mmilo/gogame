@@ -1,0 +1,8 @@
+.game-controls {
+  @include span-columns(4);
+}
+.game-board {
+  @include span-columns(8);
+  @include omega;
+}
+
