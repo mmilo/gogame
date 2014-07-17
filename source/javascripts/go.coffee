@@ -75,6 +75,15 @@ class Go.Game extends Backbone.Model
     # The number of keys is automatically the greatest key + 1
     @accepted_moves.length
 
+  lastMove: ->
+    _.last(@accepted_moves)
+
+  whitePassed: ->
+    @current_color() is Go.BLACK and !!@lastMove()?.pass
+
+  blackPassed: ->
+    @current_color() is Go.WHITE and !!@lastMove()?.pass
+
   # Called when the game ends (both players passed)
   end_game: ->
     console.log "GAME OVER"
@@ -92,7 +101,7 @@ class Go.Game extends Backbone.Model
       return false
 
     if move.pass
-      @end_game() if @accepted_moves[@move_number()-1].pass
+      @end_game() if @accepted_moves[@move_number()-1]?.pass
       @accept_move(move, options.replaying)
       return true
     else if move.x? and move.y?
@@ -133,8 +142,6 @@ class Go.Game extends Backbone.Model
 
     # Store the move unless we're replaying
     @accept_move(move, options.replaying)
-
-    @trigger('board_state_changed')
     true
 
   accept_move: (move, replaying=false) ->
@@ -145,6 +152,8 @@ class Go.Game extends Backbone.Model
     @accepted_moves[move.index] = move
     # Store it in Firebase
     @firebase.child('moves').push(move) unless replaying
+    # Trigger event for views
+    @trigger('board_state_changed')
 
   # Sanitize a move for storage and strip extra attributes for isObject comparisons
   normalize_move: (move) ->
