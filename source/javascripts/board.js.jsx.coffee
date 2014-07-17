@@ -195,7 +195,8 @@ auth = new FirebaseSimpleLogin(chatRef, (error, user) ->
 
 if (gameId = getParameterByName('g'))?
   window.game = new Go.Game({ size: 19, game_id: gameId })
-  React.renderComponent `<ContainerView game={game} environment={Go} />`, document.getElementById("main")
+  game.once 'ready', ->
+    React.renderComponent `<ContainerView game={game} environment={Go} />`, document.getElementById("main")
 else
   React.renderComponent `<NewGameView />`, document.getElementById("main")
 

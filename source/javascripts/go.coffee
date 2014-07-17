@@ -32,6 +32,7 @@ class Go.Game extends Backbone.Model
         # Start fresh and replay all the moves
         @resetBoard()
         _.each moves, (move, key, moves) => @play(move, replaying: true)
+      @trigger('ready')
 
   resetBoard: =>
     @in_atari = false
