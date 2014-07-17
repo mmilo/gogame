@@ -70,12 +70,8 @@
   }
 }
 
-.board.turn .point:hover, .stone{
-  border-radius: 100%;
-  box-shadow: 0 1px 2px rgba(#000, .4);
-}
 
-.board .stone {
+#main .board .stone {
   &--white {
     background: white;
     @include linear-gradient(to bottom, #fff 0%, #ddd 100%);
@@ -84,6 +80,11 @@
     background: black;
     @include linear-gradient(to bottom, #555 0%, #000 100%);
   }
+}
+
+.board.turn .point:hover, .stone{
+  border-radius: 100%;
+  box-shadow: 0 1px 2px rgba(#000, .4);
 }
 
 .board.turn {
