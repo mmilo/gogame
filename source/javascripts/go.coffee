@@ -1,34 +1,29 @@
 # Game logic for the board game Go
-class Go.Game extends Backbone.Firebase.Model
-
-  initialize: (attributes, options) =>
+class Go.Game extends Backbone.Model
+  constructor: (options) ->
     @size = options.size
     @resetBoard()
 
-    @firebase = "https://intense-fire-8240.firebaseio.com/games/#{options.game_id}"
+    @firebase = new Firebase("https://intense-fire-8240.firebaseio.com/games/#{options.game_id}")
 
-    # On initial sync with Firebase, force persistence by setting the started_at attribute.
-    # The shitty timeout is there because Firebase still doesn't seem to be ready when the sync
-    # event fires.
-    @once 'sync', =>
-      unless @get('started_at')?
-        setTimeout =>
-          @set(started_at: new Date().valueOf())
-        , 500
+    @firebase.child('players').on 'value', (snapshot) =>
+      @players = snapshot.val() || {}
 
-    @on 'change:moves', (model) =>
+    @firebase.child('moves').on 'value', (snapshot) =>
+      moves = snapshot.val()
       try
-        unless _.isObject(@get('moves'))
-          throw("Not valid moves - rollback")
-        if _.keys(@accepted_moves).length > _.keys(@get('moves')).length
+        unless _.isObject(moves)
+          throw("Firebase thinks there are no moves. Rollback")
+        if @accepted_moves.length > _.keys(moves).length
           throw("Firebase rejected a move - rollback")
 
         # Play / replay moves
-        _.each @get('moves'), (move, key, moves) =>
+        _.each moves, (move, key, moves) =>
           # Skip moves that have already been played
-          if _.isEqual(@accepted_moves[key], move)
-            console.log("Not replaying move ##{key}, (#{move[0]}, #{move[1]})")
-          else if @accepted_moves[key]?
+          if _.isEqual(@accepted_moves[move.index], @normalize_move(move))
+            console.log("Not replaying move ##{move.index}, (#{if move.pass then 'pass' else "#{move.x}, #{move.y}"})")
+          else if @accepted_moves[move.index]?
+            debugger
             throw("Conflict in moves - Start over")
           else
             # Replay the new move
@@ -38,27 +33,25 @@ class Go.Game extends Backbone.Firebase.Model
         console.log "ERROR: #{error}"
         # Start fresh and replay all the moves
         @resetBoard()
-        _.each @get('moves'), (move, key, moves) => @play(move, replaying: true)
+        _.each moves, (move, key, moves) => @play(move, replaying: true)
 
   resetBoard: =>
     @in_atari = false
     @attempted_suicide = false
-    @accepted_moves = {}
+    @accepted_moves = []
     @board = @create_board()
     @trigger('board_state_changed')
 
   join: (userId) =>
-    players = _.clone(@players()) || {}
-    if !players[Go.BLACK]?
-      players[Go.BLACK] = userId
-    else if !players[Go.WHITE]?
-      players[Go.WHITE] = userId
+    if !@players[Go.BLACK]?
+      @firebase.child('players').child(Go.BLACK).set(userId)
+      return true
+    else if !@players[Go.WHITE]?
+      @firebase.child('players').child(Go.WHITE).set(userId)
+      return true
     else
       # No available place
       return false
-    @set('players', players)
-    console.log @players()
-    true
 
   # Returns a size x size matrix with all entries initialized to Go.EMPTY
   create_board: =>
@@ -73,9 +66,6 @@ class Go.Game extends Backbone.Firebase.Model
       i++
     m
 
-  # Always return an object
-  players: -> @get('players') || {}
-
   current_color: ->
     if @move_number() % 2 is 0
       Go.BLACK
@@ -84,7 +74,7 @@ class Go.Game extends Backbone.Firebase.Model
 
   move_number: ->
     # The number of keys is automatically the greatest key + 1
-    _.keys(@accepted_moves).length
+    @accepted_moves.length
 
   # Called when the game ends (both players passed)
   end_game: ->
@@ -92,20 +82,23 @@ class Go.Game extends Backbone.Firebase.Model
     return
 
   play: (move, options={}) =>
-    console.log "#{if options.replaying then 'Re-' else ''}Played new move at " + move[0] + ", " + move[1]
+    if move.pass
+      console.log "#{if options.replaying then 'Re-' else ''}Played PASS"
+    else
+      console.log "#{if options.replaying then 'Re-' else ''}Played move at " + move.x + ", " + move.y
 
     # Only permit each player to take their own turn
-    if !options.replaying and @players()[@current_color()] isnt Go.current_user.uid
+    if !options.replaying and @players[@current_color()] isnt Go.current_user.uid
       console.warn "Ignoring move played out of turn."
       return false
 
-    if move is 'pass'
-      @end_game() if @accepted_moves[@move_number()-1] is 'pass'
-      @accept_move('pass', options.replaying)
+    if move.pass
+      @end_game() if @accepted_moves[@move_number()-1].pass
+      @accept_move(move, options.replaying)
       return true
-    else if move[0]? and move[1]?
-      i = move[0]
-      j = move[1]
+    else if move.x? and move.y?
+      i = move.x
+      j = move.y
     else
       throw 'Invalid move attempted'
 
@@ -140,18 +133,27 @@ class Go.Game extends Backbone.Firebase.Model
     @in_atari = true  if atari
 
     # Store the move unless we're replaying
-    @accept_move([i,j], options.replaying)
+    @accept_move(move, options.replaying)
 
     @trigger('board_state_changed')
     true
 
   accept_move: (move, replaying=false) ->
-    move_number = @move_number()
-    @accepted_moves[move_number] = move
-    unless replaying
-      moves = _.clone(@get('moves')) || {}
-      moves[move_number] = move
-      @set('moves', moves)
+    move = @normalize_move(move)
+    # Set the numerical index of the move on it for storage
+    move.index = @move_number()
+    # Register that it's been played at that index in the @accepted_moves
+    @accepted_moves[move.index] = move
+    # Store it in Firebase
+    @firebase.child('moves').push(move) unless replaying
+
+  # Sanitize a move for storage and strip extra attributes for isObject comparisons
+  normalize_move: (move) ->
+    if move.pass is true
+      move.x = move.y = null
+    else
+      move.pass = false
+    return { x: move.x, y: move.y, pass: move.pass, index: move.index }
 
   # Given a board position, returns a list of [i,j] coordinates representing
   # orthagonally adjacent intersections
