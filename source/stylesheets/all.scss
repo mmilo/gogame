@@ -1,4 +1,7 @@
 @charset "utf-8";
+@import 'bourbon/bourbon';
+@import 'neat/neat';
+
 body {
   text-align: center;
 }
@@ -102,21 +105,21 @@ body {
 .board.turn {
   &--white .point:hover{
     background: white;
-    background: linear-gradient(to bottom, rgba(#fff, .4) 0%, rgba(#ddd, .4) 100%) !important;
+    @include linear-gradient(to bottom, rgba(#fff, .4) 0%, rgba(#ddd, .4) 100%);
   }
   &--black .point:hover{
     background: black;
-    background: linear-gradient(to bottom, rgba(#555, .4) 0%, rgba(#000, .4) 100%) !important;
+    @include linear-gradient(to bottom, rgba(#555, .4) 0%, rgba(#000, .4) 100%);
   }
 }
 #main .board .stone {
   &--white {
     background: white;
-    background: linear-gradient(to bottom, #fff 0%, #ddd 100%) !important;
+    @include linear-gradient(to bottom, #fff 0%, #ddd 100%);
   }
   &--black {
     background: black;
-    background: linear-gradient(to bottom, #555 0%, #000 100%) !important;
+    @include linear-gradient(to bottom, #555 0%, #000 100%);
   }
 }
 
