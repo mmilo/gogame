@@ -1,5 +1,6 @@
 .game-controls {
   @include span-columns(4);
+  padding: 2em;
 }
 .game-board {
   @include span-columns(8);

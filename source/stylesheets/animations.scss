@@ -1,0 +1,12 @@
+@include keyframes(pulse) {
+  0% {
+    @include transform(scale(1));
+    opacity: 1;
+  }
+  50% {
+    @include transform(scale(1.15));
+  }
+  100% {
+    @include transform(scale(1));
+  }
+}

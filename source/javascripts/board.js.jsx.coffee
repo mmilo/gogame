@@ -136,6 +136,7 @@ PlayersView = React.createClass
   getInitialState: ->
     black_player: null
     white_player: null
+    current_color: null
 
   componentWillMount: ->
     @props.game.firebase.child('players').on 'value', (snapshot) =>
@@ -143,6 +144,10 @@ PlayersView = React.createClass
       @setState
         black_player: players[Go.BLACK]
         white_player: players[Go.WHITE]
+        current_color: @props.game.current_color()
+    @props.game.on 'board_state_changed', =>
+      @setState
+        current_color: @props.game.current_color()
 
   handleClick: ->
     if @props.current_user?
@@ -151,9 +156,18 @@ PlayersView = React.createClass
       return alert('You must log in to join the game')
 
   render: ->
-    `<div className='players'>
-      <p className={this.state.black_player ? '' : 'waiting'}>{this.state.black_player ? this.state.black_player : 'waiting for player 1 to join...'}</p>
-      <p className={this.state.white_player ? '' : 'waiting'}>{this.state.white_player ? this.state.white_player : 'waiting for player 2 to join...'}</p>
+    classes = "players turn--" + @state.current_color
+    `<div className={classes}>
+      <ul>
+        <li className={this.state.black_player ? '' : 'waiting'}>
+          <div className='stone stone--black'></div>
+          {this.state.black_player ? this.state.black_player : 'waiting for player 1 to join...'}
+        </li>
+        <li className={this.state.white_player ? '' : 'waiting'}>
+          <div className='stone stone--white'></div>
+          {this.state.white_player ? this.state.white_player : 'waiting for player 2 to join...'}
+        </li>
+      </ul>
       {!this.state.black_player || !this.state.white_player ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : ''}
     </div>
     `
