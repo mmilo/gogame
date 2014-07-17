@@ -1,3 +1,13 @@
+.user-session {
+  @include fill-parent;
+  padding: 1em 2em;
+  border-bottom: 1px solid #eee;
+  margin: 0 0 2em 0;
+  text-align: right;
+  input {
+    margin-left: 15px;
+  }
+}
 .game-controls {
   @include span-columns(4);
   padding: 2em;

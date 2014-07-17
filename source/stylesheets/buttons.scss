@@ -1,0 +1,13 @@
+input[type='button'], button {
+  padding: 8px 10px;
+  border: 0px;
+  line-height: 1;
+  padding: 10px 15px;
+  background: lighten(#50b1ff, 8%);
+  color: white;
+  border-radius: 2px;
+  min-width: 80px;
+  &:hover {
+    background: lighten(#50b1ff, 0%);
+  }
+}

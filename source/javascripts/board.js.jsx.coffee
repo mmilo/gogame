@@ -84,6 +84,9 @@ UserSessionView = React.createClass
   loginWithEmail: ->
     @setState(loggingIn: true, signingUp: false)
 
+  cancelAction: ->
+    @setState(loggingIn: false, signingUp: false)
+
   render: ->
     if @props.current_user?
       `<div>
@@ -91,9 +94,9 @@ UserSessionView = React.createClass
         <input type="button" value="logout" onClick={this.logout} />
       </div>`
     else if @state.signingUp
-      `<SignupAndLoginForm mode='signup' />`
+      `<SignupAndLoginForm mode='signup' onCancel={this.cancelAction} />`
     else if @state.loggingIn
-      `<SignupAndLoginForm mode='login' />`
+      `<SignupAndLoginForm mode='login'  onCancel={this.cancelAction} />`
     else
       `<div>
         <input type="button" value="Login with Twitter" onClick={this.loginWithTwitter} />
@@ -126,10 +129,10 @@ SignupAndLoginForm = React.createClass
 
   render: ->
     `<div>
-      {this.props.mode}:
-      <input type="text" name="email" value={this.state.email} placeholder='you@email.com' onChange={this.onChange} />
-      <input type="password" name="password" value={this.state.password} placeholder='password' onChange={this.onChange} />
-      <input type="button" value="submit" onClick={this.handleSubmit} />
+      <a href="#" onClick={this.props.onCancel}>cancel</a>
+      <input type="email" name="email" value={this.state.email} placeholder='Email address' onChange={this.onChange} />
+      <input type="password" name="password" value={this.state.password} placeholder='Password' onChange={this.onChange} />
+      <input type="button" value={this.props.mode == 'signup' ? "Sign up" : "Log In"} onClick={this.handleSubmit} />
     </div>`
 
 PlayersView = React.createClass
@@ -197,8 +200,9 @@ ContainerView = React.createClass
 
   render: ->
     `<div>
-      <UserSessionView current_user={this.state.current_user} />
-      <hr />
+      <div className='user-session'>
+        <UserSessionView current_user={this.state.current_user} />
+      </div>
       <div className="game-controls">
         <NewGameView />
         <AlertView game={this.state.game} />
