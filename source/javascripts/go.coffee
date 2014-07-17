@@ -10,10 +10,8 @@ class Go.Game extends Backbone.Model
       @players = snapshot.val() || {}
 
     @firebase.child('moves').on 'value', (snapshot) =>
-      moves = snapshot.val()
+      moves = snapshot.val() || {}
       try
-        unless _.isObject(moves)
-          throw("Firebase thinks there are no moves. Rollback")
         if @accepted_moves.length > _.keys(moves).length
           throw("Firebase rejected a move - rollback")
 
