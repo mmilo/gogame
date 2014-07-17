@@ -12,7 +12,7 @@ class Go.Game extends Backbone.Model
     @firebase.child('moves').on 'value', (snapshot) =>
       moves = snapshot.val()
       try
-        unless moves?
+        unless _.isObject(moves)
           throw("Firebase thinks there are no moves. Rollback")
         if @accepted_moves.length > _.keys(moves).length
           throw("Firebase rejected a move - rollback")
@@ -20,9 +20,10 @@ class Go.Game extends Backbone.Model
         # Play / replay moves
         _.each moves, (move, key, moves) =>
           # Skip moves that have already been played
-          if _.isEqual(@accepted_moves[move.index], move)
-            console.log("Not replaying move ##{move.index}, (#{move[0]}, #{move[1]})")
+          if _.isEqual(@accepted_moves[move.index], @normalize_move(move))
+            console.log("Not replaying move ##{move.index}, (#{if move.pass then 'pass' else "#{move.x}, #{move.y}"})")
           else if @accepted_moves[move.index]?
+            debugger
             throw("Conflict in moves - Start over")
           else
             # Replay the new move
@@ -81,20 +82,23 @@ class Go.Game extends Backbone.Model
     return
 
   play: (move, options={}) =>
-    console.log "#{if options.replaying then 'Re-' else ''}Played new move at " + move[0] + ", " + move[1]
+    if move.pass
+      console.log "#{if options.replaying then 'Re-' else ''}Played PASS"
+    else
+      console.log "#{if options.replaying then 'Re-' else ''}Played move at " + move.x + ", " + move.y
 
     # Only permit each player to take their own turn
     if !options.replaying and @players[@current_color()] isnt Go.current_user.uid
       console.warn "Ignoring move played out of turn."
       return false
 
-    if move is 'pass'
-      @end_game() if @accepted_moves[@move_number()-1] is 'pass'
-      @accept_move('pass', options.replaying)
+    if move.pass
+      @end_game() if @accepted_moves[@move_number()-1].pass
+      @accept_move(move, options.replaying)
       return true
-    else if move[0]? and move[1]?
-      i = move[0]
-      j = move[1]
+    else if move.x? and move.y?
+      i = move.x
+      j = move.y
     else
       throw 'Invalid move attempted'
 
@@ -129,18 +133,27 @@ class Go.Game extends Backbone.Model
     @in_atari = true  if atari
 
     # Store the move unless we're replaying
-    @accept_move([i,j], options.replaying)
+    @accept_move(move, options.replaying)
 
     @trigger('board_state_changed')
     true
 
   accept_move: (move, replaying=false) ->
+    move = @normalize_move(move)
     # Set the numerical index of the move on it for storage
     move.index = @move_number()
     # Register that it's been played at that index in the @accepted_moves
     @accepted_moves[move.index] = move
     # Store it in Firebase
     @firebase.child('moves').push(move) unless replaying
+
+  # Sanitize a move for storage and strip extra attributes for isObject comparisons
+  normalize_move: (move) ->
+    if move.pass is true
+      move.x = move.y = null
+    else
+      move.pass = false
+    return { x: move.x, y: move.y, pass: move.pass, index: move.index }
 
   # Given a board position, returns a list of [i,j] coordinates representing
   # orthagonally adjacent intersections

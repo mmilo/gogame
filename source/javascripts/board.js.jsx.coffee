@@ -1,7 +1,7 @@
 ###* @jsx React.DOM ###
 BoardIntersection = React.createClass
   handleClick: ->
-    @props.onPlay() if @props.game.play([@props.row, @props.col])
+    @props.onPlay() if @props.game.play(x: @props.row, y: @props.col)
     return
 
   render: ->
@@ -61,7 +61,7 @@ AlertView = React.createClass
 
 PassView = React.createClass
   handleClick: (e) ->
-    @props.game.play('pass')
+    @props.game.play(pass: true)
 
   render: ->
     `<input id="pass-btn" type="button" value="Pass" onClick={this.handleClick} />`
