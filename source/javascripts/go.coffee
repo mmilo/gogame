@@ -85,6 +85,14 @@ class Go.Game extends Backbone.Model
   lastMove: ->
     _.last(@accepted_moves)
 
+  lastStone: ->
+    move = _.last(_.where(@accepted_moves, { pass: false }))
+    if move
+      { x: move.x, y: move.y }
+    else
+      {}
+
+
   whitePassed: ->
     @current_color() is Go.BLACK and !!@lastMove()?.pass
 

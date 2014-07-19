@@ -6,7 +6,10 @@ BoardIntersection = React.createClass
 
   render: ->
     classes = "point "
-    classes += (if @props.color is Go.BLACK then "stone stone--black" else "stone stone--white")  unless @props.color is Go.EMPTY
+    unless @props.color is Go.EMPTY
+      classes += "stone "
+      classes += (if @props.color is Go.BLACK then "stone--black " else "stone--white ")
+      classes += "stone--last" if @props.lastStone
     `<td onClick={this.handleClick} className={classes}></td>`
 
 BoardRow = React.createClass
@@ -22,6 +25,7 @@ BoardView = React.createClass
       intersections = []
       j = 0
 
+      lastStone = @props.game.lastStone()
       while j < @props.game.size
         intersections.push BoardIntersection(
           game: @props.game
@@ -29,6 +33,7 @@ BoardView = React.createClass
           row: i
           col: j
           onPlay: @props.onPlay
+          lastStone: i == lastStone.x and j == lastStone.y
         )
         j++
       rows.push BoardRow(intersections: intersections)

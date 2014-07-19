@@ -7,6 +7,10 @@
 @import 'forms';
 @import 'board';
 
+*, *:before, *:after {
+  -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+
 .players {
   margin: 0 0 2em 0;
   ul {

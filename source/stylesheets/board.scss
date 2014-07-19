@@ -77,10 +77,32 @@
   &--white {
     background: white;
     @include linear-gradient(to bottom, #fff 0%, #ddd 100%);
+    &.stone--last {
+      &:after{
+        border-color: rgba(black, .7);
+      }
+    }
   }
   &--black {
     background: black;
     @include linear-gradient(to bottom, #555 0%, #000 100%);
+    &.stone--last {
+      &:after{
+        border-color: rgba(white, .7);
+      }
+    }
+  }
+  &--last {
+    &:after {
+      width: 60%;
+      height: 60%;
+      border-radius: 100%;
+      border: 2px solid red;
+      top: 22%;
+      left: 22%;
+      z-index: 1;
+      background: transparent;
+    }
   }
 }
 
