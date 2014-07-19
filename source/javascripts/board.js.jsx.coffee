@@ -188,6 +188,9 @@ PlayersView = React.createClass
           {show_pass_for_black ? <PassView game={this.props.game} /> : null }
           <br />
           {Math.round(this.state.player_times[Go.BLACK] / 1000) } seconds
+          <hr />
+          {this.props.game.prisoners[Go.WHITE] }
+          &nbsp; prisoners
         </li>
         <li className={this.state.white_player ? '' : 'waiting'}>
           <div className='stone stone--white'></div>
@@ -196,6 +199,9 @@ PlayersView = React.createClass
           {show_pass_for_white ? <PassView game={this.props.game} /> : null }
           <br />
           {Math.round(this.state.player_times[Go.WHITE] / 1000) } seconds
+          <hr />
+          {this.props.game.prisoners[Go.BLACK] }
+          &nbsp; prisoners
         </li>
       </ul>
       {!this.state.black_player || !this.state.white_player ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : ''}

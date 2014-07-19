@@ -45,6 +45,8 @@ class Go.Game extends Backbone.Model
     @in_atari = false
     @attempted_suicide = false
     @accepted_moves = []
+    @prisoners = {}
+    @prisoners[Go.BLACK] = @prisoners[Go.WHITE] = 0
     @board = @create_board()
     @trigger('board_state_changed')
 
@@ -149,6 +151,7 @@ class Go.Game extends Backbone.Model
       return false
     _.each captured, (group) =>
       _.each group["stones"], (stone) =>
+        @prisoners[@board[stone[0]][stone[1]]] += 1
         @board[stone[0]][stone[1]] = Go.EMPTY
         return
 
