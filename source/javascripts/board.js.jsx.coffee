@@ -172,8 +172,8 @@ PlayersView = React.createClass
 
   render: ->
     classes = "players turn--" + @state.current_color
-    show_pass_for_black = @state.current_color is Go.BLACK and @props.current_user?.uid is @state.black_player
-    show_pass_for_white = @state.current_color is Go.WHITE and @props.current_user?.uid is @state.white_player
+    show_pass_for_black = !@props.game.game_is_over and @state.current_color is Go.BLACK and @props.current_user?.uid is @state.black_player
+    show_pass_for_white = !@props.game.game_is_over and @state.current_color is Go.WHITE and @props.current_user?.uid is @state.white_player
     `<div className={classes}>
       <ul>
         <li className={this.state.black_player ? '' : 'waiting'}>
