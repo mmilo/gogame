@@ -214,10 +214,12 @@ ContainerView = React.createClass
     game: null
     game_ready: false
     current_user: @props.environment.current_user
+    open_games: {}
 
   componentWillMount: ->
-    chatRef = new Firebase("https://intense-fire-8240.firebaseio.com/")
-    auth = new FirebaseSimpleLogin chatRef, (error, user) ->
+    window.view = this
+    @props.firebase = new Firebase("https://intense-fire-8240.firebaseio.com/")
+    auth = new FirebaseSimpleLogin @props.firebase, (error, user) ->
       Go.current_user = user
       Go.trigger('change:current_user')
     
@@ -226,6 +228,9 @@ ContainerView = React.createClass
       @setState(game: game)
       game.once 'ready', => @setState game_ready: true
       game.firebase.child('moves').on 'value', @onGameUpdate
+    else
+      @props.firebase.child('games').startAt(Go.STATUS.WAITING).endAt(Go.STATUS.WAITING).on 'value', (snapshot) =>
+        @setState(open_games : snapshot.val() || {})
 
     @props.environment.on 'change:current_user', => @setState(current_user: @props.environment.current_user)
 
@@ -248,8 +253,17 @@ ContainerView = React.createClass
           </div>`
       else
         'loading game...'
+    else if !!_.keys(@state.open_games).length
+      games = []
+      _.each @state.open_games, (game, id) ->
+        path = "/?g=#{id}"
+        games.push `<li><a href={path}> game {id}</a> </li>`
+      body = `
+        <ul>
+          {games}
+        </ul>`
     else
-      body = "Welcome."
+      body = "Welcome. Looks like there aren't any open games."
 
     return `<div>
       <div id='header'>
