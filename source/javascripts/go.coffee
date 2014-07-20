@@ -180,7 +180,10 @@ class Go.Game extends Backbone.Model
     unless replaying
       move.played_at = Firebase.ServerValue.TIMESTAMP
       @firebase.child('moves').push(move)
-    @clickSound.play()
+    if move.pass
+      # TODO: Play pass sound
+    else
+      @clickSound.play()
     # Trigger event for views
 
     @trigger('board_state_changed')
