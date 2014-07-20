@@ -54,9 +54,11 @@ class Go.Game extends Backbone.Model
   join: (userId) =>
     if !@players[Go.BLACK]?
       @firebase.child('players').child(Go.BLACK).set(userId)
+      @firebase.setPriority(Go.STATUS.WAITING)
       return true
     else if !@players[Go.WHITE]?
       @firebase.child('players').child(Go.WHITE).set(userId)
+      @firebase.setPriority(Go.STATUS.FULL)
       return true
     else
       # No available place
@@ -106,6 +108,7 @@ class Go.Game extends Backbone.Model
   end_game: ->
     @game_is_over = true
     console.log "GAME OVER"
+    @firebase.setPriority(Go.STATUS.ENDED)
     return
 
   play: (move, options={}) =>

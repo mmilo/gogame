@@ -222,7 +222,7 @@ ContainerView = React.createClass
       Go.trigger('change:current_user')
     
     if (gameId = getParameterByName('g'))?
-      game = new Go.Game({ size: 19, game_id: gameId })
+      window.game = new Go.Game({ size: 19, game_id: gameId })
       @setState(game: game)
       game.once 'ready', => @setState game_ready: true
       game.firebase.child('moves').on 'value', @onGameUpdate
