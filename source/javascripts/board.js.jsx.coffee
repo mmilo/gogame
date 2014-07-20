@@ -211,46 +211,55 @@ PlayersView = React.createClass
 
 ContainerView = React.createClass
   getInitialState: ->
-    game: @props.game
+    game: null
+    game_ready: false
     current_user: @props.environment.current_user
 
   componentWillMount: ->
-    @props.game.firebase.child('moves').on 'value', =>
-      @setState(game: @props.game)
-    @props.environment.on 'change:current_user', =>
-      @setState(current_user: @props.environment.current_user)
+    chatRef = new Firebase("https://intense-fire-8240.firebaseio.com/")
+    auth = new FirebaseSimpleLogin chatRef, (error, user) ->
+      Go.current_user = user
+      Go.trigger('change:current_user')
+    
+    if (gameId = getParameterByName('g'))?
+      game = new Go.Game({ size: 19, game_id: gameId })
+      @setState(game: game)
+      game.once 'ready', => @setState game_ready: true
+      game.firebase.child('moves').on 'value', @onGameUpdate
+
+    @props.environment.on 'change:current_user', => @setState(current_user: @props.environment.current_user)
 
   onGameUpdate: ->
-    @setState game: @props.game
+    @setState game: @state.game
     return
 
   render: ->
-    `<div>
-      <div className='user-session'>
-        <UserSessionView current_user={this.state.current_user} />
-      </div>
-      <div className="game-controls">
+    if @state.game?
+      if @state.game_ready
+        body =  `
+          <div>
+            <div className="game-controls">
+              <AlertView game={this.state.game} />
+              <PlayersView game={this.state.game} current_user={this.state.current_user} />
+            </div>
+            <div className="game-board">
+              <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
+            </div>
+          </div>`
+      else
+        'loading game...'
+    else
+      body = "Welcome."
+
+    return `<div>
+      <div id='header'>
         <NewGameView />
-        <AlertView game={this.state.game} />
-        <PlayersView game={this.state.game} current_user={this.state.current_user} />
+        <div className='user-session'>
+          <UserSessionView current_user={this.state.current_user} />
+        </div>
       </div>
-      <div className="game-board">
-        <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
-      </div>
+      { body }
     </div>`
 
 
-chatRef = new Firebase("https://intense-fire-8240.firebaseio.com/")
-auth = new FirebaseSimpleLogin(chatRef, (error, user) ->
-  Go.current_user = user
-  Go.trigger('change:current_user')
-)
-
-
-if (gameId = getParameterByName('g'))?
-  window.game = new Go.Game({ size: 19, game_id: gameId })
-  game.once 'ready', ->
-    React.renderComponent `<ContainerView game={game} environment={Go} />`, document.getElementById("main")
-else
-  React.renderComponent `<NewGameView />`, document.getElementById("main")
-
+React.renderComponent `<ContainerView environment={Go} />`, document.getElementById("main")
