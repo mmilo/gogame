@@ -2,6 +2,7 @@
 class Go.Game extends Backbone.Model
   constructor: (options) ->
     @size = options.size
+    @clickSound = new Audio("/sounds/click.wav")
     @resetBoard()
 
     @firebase = new Firebase("https://intense-fire-8240.firebaseio.com/games/#{options.game_id}")
@@ -176,7 +177,9 @@ class Go.Game extends Backbone.Model
     unless replaying
       move.played_at = Firebase.ServerValue.TIMESTAMP
       @firebase.child('moves').push(move)
+    @clickSound.play()
     # Trigger event for views
+
     @trigger('board_state_changed')
 
   playerTimes: ->
