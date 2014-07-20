@@ -1,10 +1,18 @@
 @import 'bourbon/bourbon';
 @import 'neat/neat';
-.user-session {
-  @include fill-parent;
+
+#header {
   padding: 1em 2em;
   border-bottom: 1px solid #eee;
   margin: 0 0 2em 0;
+  @include clearfix;
+}
+
+.navigation {
+  @include span-columns(4);
+}
+.user-session {
+  @include span-columns(8);
   text-align: right;
   input {
     margin-left: 15px;

@@ -267,7 +267,13 @@ ContainerView = React.createClass
 
     return `<div>
       <div id='header'>
-        <NewGameView />
+        <div className='navigation'>
+          <a href="/">List games</a>
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          <NewGameView />
+        </div>
         <div className='user-session'>
           <UserSessionView current_user={this.state.current_user} />
         </div>
