@@ -3,7 +3,8 @@
 
 #header {
   padding: 1em 2em;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid darken($pale, 5%);
+  background: $pale;
   margin: 0 0 2em 0;
   @include clearfix;
 }
@@ -25,7 +26,6 @@
 }
 .game-controls {
   @include span-columns(4);
-  padding: 2em;
 }
 .game-board {
   @include span-columns(8);

@@ -188,7 +188,7 @@ PlayersView = React.createClass
           {show_pass_for_black ? <PassView game={this.props.game} /> : null }
           <br />
           {Math.round(this.state.player_times[Go.BLACK] / 1000) } seconds
-          <hr />
+          <br />
           {this.props.game.prisoners[Go.WHITE] }
           &nbsp; prisoners
         </li>
@@ -199,7 +199,7 @@ PlayersView = React.createClass
           {show_pass_for_white ? <PassView game={this.props.game} /> : null }
           <br />
           {Math.round(this.state.player_times[Go.WHITE] / 1000) } seconds
-          <hr />
+          <br />
           {this.props.game.prisoners[Go.BLACK] }
           &nbsp; prisoners
         </li>
@@ -245,8 +245,8 @@ ContainerView = React.createClass
         body =  `
           <div>
             <div className="game-controls">
-              <AlertView game={this.state.game} />
               <PlayersView game={this.state.game} current_user={this.state.current_user} />
+              <AlertView game={this.state.game} />
             </div>
             <div className="game-board">
               <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
@@ -264,7 +264,7 @@ ContainerView = React.createClass
           {games}
         </ul>`
     else
-      body = "Welcome. Looks like there aren't any open games."
+      body = "Looks like there aren't any open games."
 
     return `<div>
       <div id='header'>

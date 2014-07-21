@@ -1,6 +1,7 @@
 @charset "utf-8";
 @import 'bourbon/bourbon';
 @import 'neat/neat';
+@import 'colors';
 @import 'animations';
 @import 'layout';
 @import 'buttons';
@@ -16,15 +17,17 @@
   margin: 0 0 2em 0;
   ul {
     list-style-type: none;
-    padding: 10px;
+    padding: 0px;
     margin: 0;
   }
   li {
     line-height: 40px;
     margin-bottom: 10px;
-    background: rgba(black, .07);
-    border-radius: 30px;
-    padding: 10px;
+    background: $pale;
+    border: 1px solid $paleBorder;
+    border-radius: 2px;
+    padding: 20px;
+    box-shadow: 0 1px 1px rgba(black, .12);
     &:last-child{
       margin-bottom: 0px;
     }
@@ -36,7 +39,6 @@
       margin-right: 15px;
     }
     .btn-pass {
-      border-radius: 20px;
       float: right;
 			height: 100%;
     }
@@ -58,8 +60,9 @@
 .table {
   position: relative;  
   margin: 0 auto;
-  width: 90%;
+  width: 100%;
   background: image-url('board.png');
+  box-shadow: 0 1px 10px rgba(black, .2), 0 1px 4px rgba(black, .1),;
   background-size: 50% 50%;
   z-index: 1;
   &:before {
