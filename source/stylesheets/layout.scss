@@ -8,6 +8,11 @@
   @include clearfix;
 }
 
+#body{
+  padding: 0 1em;
+  @include clearfix;
+}
+
 .navigation {
   @include span-columns(4);
 }

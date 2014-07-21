@@ -219,7 +219,8 @@ ContainerView = React.createClass
   componentWillMount: ->
     window.view = this
     @props.firebase = new Firebase("https://intense-fire-8240.firebaseio.com/")
-    auth = new FirebaseSimpleLogin @props.firebase, (error, user) ->
+    # TODO: scope auth properly and make it availabel to ancestor views
+    window.auth = new FirebaseSimpleLogin @props.firebase, (error, user) ->
       Go.current_user = user
       Go.trigger('change:current_user')
     
@@ -278,7 +279,9 @@ ContainerView = React.createClass
           <UserSessionView current_user={this.state.current_user} />
         </div>
       </div>
-      { body }
+      <div id='body'>
+        { body }
+      </div>
     </div>`
 
 
