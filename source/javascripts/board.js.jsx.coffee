@@ -215,6 +215,7 @@ ContainerView = React.createClass
     game_ready: false
     current_user: @props.environment.current_user
     open_games: {}
+    open_games_ready: false
 
   componentWillMount: ->
     window.view = this
@@ -231,7 +232,8 @@ ContainerView = React.createClass
       game.firebase.child('moves').on 'value', @onGameUpdate
     else
       @props.firebase.child('games').startAt(Go.STATUS.WAITING).endAt(Go.STATUS.WAITING).on 'value', (snapshot) =>
-        @setState(open_games : snapshot.val() || {})
+        @setState(open_games: snapshot.val() || {})
+        @setState(open_games_ready: true)
 
     @props.environment.on 'change:current_user', => @setState(current_user: @props.environment.current_user)
 
@@ -263,8 +265,10 @@ ContainerView = React.createClass
         <ul>
           {games}
         </ul>`
-    else
+    else if @state.open_games_ready
       body = "Looks like there aren't any open games."
+    else
+      body = 'loading games...'
 
     return `<div>
       <div id='header'>

@@ -179,7 +179,7 @@ class Go.Game extends Backbone.Model
     # Store it in Firebase
     unless replaying
       move.played_at = Firebase.ServerValue.TIMESTAMP
-      @firebase.child('moves').push(move)
+      @firebase.child("moves/move-#{move.index}").set(move)
     if move.pass
       # TODO: Play pass sound
     else
