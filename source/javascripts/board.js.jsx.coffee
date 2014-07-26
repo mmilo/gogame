@@ -177,15 +177,14 @@ PlayersView = React.createClass
 
   render: ->
     classes = "players turn--" + @state.current_color
-    show_pass_for_black = !@props.game.game_is_over and @state.current_color is Go.BLACK and @props.current_user?.uid is @state.black_player
-    show_pass_for_white = !@props.game.game_is_over and @state.current_color is Go.WHITE and @props.current_user?.uid is @state.white_player
+    pass_button_enabled = !@props.game.game_is_over and (if @state.current_color is Go.WHITE then @props.current_user?.uid is @state.white_player else @props.current_user?.uid is @state.black_player)
+
     `<div className={classes}>
       <ul>
         <li className={this.state.black_player ? '' : 'waiting'}>
           <div className='stone stone--black'></div>
           {this.state.black_player ? this.state.black_player : 'waiting for player 1 to join...'}
           {this.state.black_player_passed ? " ---  [ PASSED ]" : ''}
-          {show_pass_for_black ? <PassView game={this.props.game} /> : null }
           <br />
           {Math.round(this.state.player_times[Go.BLACK] / 1000) } seconds
           <br />
@@ -196,7 +195,6 @@ PlayersView = React.createClass
           <div className='stone stone--white'></div>
           {this.state.white_player ? this.state.white_player : 'waiting for player 2 to join...'}
           {this.state.white_player_passed ? " --- [ PASSED ]" : ''}
-          {show_pass_for_white ? <PassView game={this.props.game} /> : null }
           <br />
           {Math.round(this.state.player_times[Go.WHITE] / 1000) } seconds
           <br />
@@ -204,7 +202,7 @@ PlayersView = React.createClass
           &nbsp; prisoners
         </li>
       </ul>
-      {!this.state.black_player || !this.state.white_player ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : ''}
+      {!this.state.black_player || !this.state.white_player ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : <PassView game={this.props.game} disabled={!pass_button_enabled} />}
     </div>
     `
 
