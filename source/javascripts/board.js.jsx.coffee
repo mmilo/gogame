@@ -69,7 +69,7 @@ PassView = React.createClass
     @props.game.play(pass: true)
 
   render: ->
-    `<input className="btn-pass" type="button" value="Pass" onClick={this.handleClick} />`
+    `<input className="btn-pass" type="button" value="Pass" onClick={this.handleClick} disabled={!this.props.enabled} />`
 
 UserSessionView = React.createClass
   getInitialState: ->
@@ -202,7 +202,7 @@ PlayersView = React.createClass
           &nbsp; prisoners
         </li>
       </ul>
-      {!this.state.black_player || !this.state.white_player ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : <PassView game={this.props.game} disabled={!pass_button_enabled} />}
+      {!this.state.black_player || !this.state.white_player ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : <PassView game={this.props.game} enabled={pass_button_enabled} />}
     </div>
     `
 

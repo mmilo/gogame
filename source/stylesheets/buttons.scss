@@ -10,4 +10,10 @@ input[type='button'], button {
   &:hover {
     background: lighten(#50b1ff, 0%);
   }
+
+  &[disabled], &.disabled{
+    background: #ccc;
+    color: #aaa;
+    cursor: default;
+  }
 }
