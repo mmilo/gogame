@@ -83,6 +83,9 @@ UserSessionView = React.createClass
   loginWithTwitter: ->
     auth.login('twitter', {rememberMe: true})
 
+  loginAnonymously: ->
+    auth.login('anonymous', { rememberMe: true })
+
   signupWithEmail: ->
     @setState(signingUp: true, loggingIn: false)
 
@@ -106,6 +109,7 @@ UserSessionView = React.createClass
       `<div>
         <input type="button" value="Login with Twitter" onClick={this.loginWithTwitter} />
         <input type="button" value="Login with Email" onClick={this.loginWithEmail} />
+        <input type="button" value="Login Anonymously" onClick={this.loginAnonymously} />
         <input type="button" value="Signup with email" onClick={this.signupWithEmail} />
       </div>`
 
@@ -220,8 +224,11 @@ ContainerView = React.createClass
     @props.firebase = new Firebase("https://intense-fire-8240.firebaseio.com/")
     # TODO: scope auth properly and make it availabel to ancestor views
     window.auth = new FirebaseSimpleLogin @props.firebase, (error, user) ->
-      Go.current_user = user
-      Go.trigger('change:current_user')
+      if user
+        Go.current_user = user
+        Go.trigger('change:current_user')
+      else if error
+        alert error.message
     
     if (gameId = getParameterByName('g'))?
       window.game = new Go.Game({ size: 19, game_id: gameId })
