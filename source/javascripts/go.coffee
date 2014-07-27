@@ -211,6 +211,7 @@ class Go.Game extends Backbone.Model
 
   # Sanitize a move for storage and strip extra attributes for isObject comparisons
   movesAreEqual: (move_a, move_b) ->
+    return false if !move_a or !move_b
     return false unless move_a.index is move_b.index
     return true if move_a.pass and move_b.pass
     return true if move_a.x is move_b.x and move_a.y is move_b.y
