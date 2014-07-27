@@ -113,14 +113,18 @@ class Go.Game extends Backbone.Model
 
   play: (move, options={}) =>
     if move.pass
-      console.log "#{if options.replaying then 'Re-' else ''}Played PASS"
+      console.log "Attempting to #{if options.replaying then 'Re-' else ''}Play PASS"
     else
-      console.log "#{if options.replaying then 'Re-' else ''}Played move at " + move.x + ", " + move.y
+      console.log "Attempting to #{if options.replaying then 'Re-' else ''}Play move at " + move.x + ", " + move.y
 
     # Only permit each player to take their own turn
-    if !options.replaying and @players[@current_color()] isnt Go.current_user.uid
-      console.warn "Ignoring move played out of turn."
-      return false
+    if !options.replaying
+      if @players[@current_color()] isnt Go.current_user.uid
+        console.warn "Ignoring move played out of turn."
+        return false
+      if @game_is_over
+        console.warn "Ignoring move - the game is over"
+        return false
 
     if move.pass
       @end_game() if @accepted_moves[@move_number()-1]?.pass
@@ -207,7 +211,10 @@ class Go.Game extends Backbone.Model
 
   # Sanitize a move for storage and strip extra attributes for isObject comparisons
   movesAreEqual: (move_a, move_b) ->
-    move_a.pass is move_b.pass and move_a.x is move_b.x and move_a.y is move_b.y and move_a.index is move_b.index
+    return false unless move_a.index is move_b.index
+    return true if move_a.pass and move_b.pass
+    return true if move_a.x is move_b.x and move_a.y is move_b.y
+    false
 
   serverTime: -> new Date().getTime() + (@serverTimeOffset || 0)
 
