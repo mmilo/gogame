@@ -116,7 +116,7 @@ UserSessionView = React.createClass
 SignupAndLoginForm = React.createClass
   getInitialState: ->
     state = {}
-    state.email = if @props.mode is 'signup' then "t-#{new Date().valueOf()}@gamilis.com" else ''
+    state.email = ''
     state.password = ''
     state
 
