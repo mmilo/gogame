@@ -190,7 +190,7 @@ PlayersView = React.createClass
           {this.state.black_player ? this.state.black_player : 'waiting for player 1 to join...'}
           {this.state.black_player_passed ? " ---  [ PASSED ]" : ''}
           <br />
-          {Math.round(this.state.player_times[Go.BLACK] / 1000) } seconds
+          {moment.duration(this.state.player_times[Go.BLACK]).humanize()}
           <br />
           {this.props.game.prisoners[Go.WHITE] }
           &nbsp; prisoners
@@ -200,7 +200,7 @@ PlayersView = React.createClass
           {this.state.white_player ? this.state.white_player : 'waiting for player 2 to join...'}
           {this.state.white_player_passed ? " --- [ PASSED ]" : ''}
           <br />
-          {Math.round(this.state.player_times[Go.WHITE] / 1000) } seconds
+          {moment.duration(this.state.player_times[Go.WHITE]).humanize()}
           <br />
           {this.props.game.prisoners[Go.BLACK] }
           &nbsp; prisoners
