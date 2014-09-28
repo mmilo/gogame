@@ -222,11 +222,29 @@ ContainerView = React.createClass
   componentWillMount: ->
     window.view = this
     @props.firebase = new Firebase("https://intense-fire-8240.firebaseio.com/")
+    usersRef = @props.firebase.child('users')
+
     # TODO: scope auth properly and make it availabel to ancestor views
-    window.auth = new FirebaseSimpleLogin @props.firebase, (error, user) ->
+    window.auth = new FirebaseSimpleLogin @props.firebase, (error, user) =>
       if user
         Go.current_user = user
         Go.trigger('change:current_user')
+        # Save if new user
+        usersRef.child(user.uid).once 'value', (snap) ->
+          if snap.val() == null
+            userAttrs = _.pick(user, 'uid', 'displayName', 'provider')
+            _.defaults(userAttrs, { displayName: 'Anonymous' })
+            usersRef.child(user.uid).set(userAttrs)
+
+        connectionsRef = usersRef.child(user.uid).child('connections')
+        lastOnlineRef = usersRef.child(user.uid).child('lastOnline')
+        connectedRef = @props.firebase.child('.info/connected')
+        connectedRef.on 'value', (snap) =>
+          if snap.val() is true
+            con = connectionsRef.push(true)
+            con.onDisconnect().remove()
+            lastOnlineRef.onDisconnect().set(Firebase.ServerValue.TIMESTAMP)
+
       else if error
         alert error.message
     
