@@ -151,8 +151,6 @@ PlayersView = React.createClass
     black_uid: null
     white_uid: null
     current_color: null
-    black_player_passed: @props.game.blackPassed()
-    white_player_passed: @props.game.whitePassed()
     player_times: @props.game.playerTimes()
 
   componentWillMount: ->
@@ -161,7 +159,7 @@ PlayersView = React.createClass
 
       if players[Go.BLACK] and not @state.black_player
         @observeUser(players[Go.BLACK], Go.BLACK)
-      if players[Go.WHTE] and not @state.white_player
+      if players[Go.WHITE] and not @state.white_player
         @observeUser(players[Go.WHITE], Go.WHITE)
 
       @setState
@@ -172,8 +170,6 @@ PlayersView = React.createClass
     @props.game.on 'board_state_changed', =>
       @setState
         current_color: @props.game.current_color()
-        black_player_passed: @props.game.blackPassed()
-        white_player_passed: @props.game.whitePassed()
         player_times: @props.game.playerTimes()
 
     # Update the game clock every second
@@ -185,7 +181,8 @@ PlayersView = React.createClass
   observeUser: (uid, color) ->
     @props.firebase.child('users').child(uid).on 'value', (snapshot) =>
       attrs = {}
-      attrs["#{if color is Go.BLACK then 'black' else 'white'}_player"] = snapshot.val()
+      attrs["#{color}_player"] = snapshot.val()
+      console.dir attrs
       @setState(attrs)
 
   handleClick: ->
@@ -200,35 +197,8 @@ PlayersView = React.createClass
 
     `<div className={classes}>
       <ul>
-        <li className={this.state.black_uid ? '' : 'waiting'}>
-          <div className='stone stone--black'></div>
-          {
-            this.state.black_uid ?
-              this.state.black_player ? this.state.black_player.displayName : 'loading player info...'
-            :
-              'waiting for player 1 to join...'
-          }
-          { this.state.black_player ?
-              this.state.black_player.connections ? 'Online' : "Offline (since "+this.state.black_player.lastOnline+")"
-            : ''
-          }
-          {this.state.black_player_passed ? " ---  [ PASSED ]" : ''}
-          <br />
-          {moment.duration(this.state.player_times[Go.BLACK]).humanize()}
-          <br />
-          {this.props.game.prisoners[Go.WHITE] }
-          &nbsp; prisoners
-        </li>
-        <li className={this.state.white_uid ? '' : 'waiting'}>
-          <div className='stone stone--white'></div>
-          {this.state.white_player ? this.state.white_player : 'waiting for player 2 to join...'}
-          {this.state.white_player_passed ? " --- [ PASSED ]" : ''}
-          <br />
-          {moment.duration(this.state.player_times[Go.WHITE]).humanize()}
-          <br />
-          {this.props.game.prisoners[Go.BLACK] }
-          &nbsp; prisoners
-        </li>
+        <PlayerView color={Go.BLACK} uid={this.state.black_uid} user={this.state.black_player} game={this.props.game} duration={this.state.player_times[Go.BLACK]} />
+        <PlayerView color={Go.WHITE} uid={this.state.white_uid} user={this.state.white_player} game={this.props.game} duration={this.state.player_times[Go.WHITE]} />
       </ul>
       {!this.state.black_uid || !this.state.white_uid ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : <PassView game={this.props.game} enabled={pass_button_enabled} />}
     </div>

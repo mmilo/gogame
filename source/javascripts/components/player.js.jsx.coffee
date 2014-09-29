@@ -1,9 +1,12 @@
-PlayerView = React.createClass
+###* @jsx React.DOM ###
+
+window.PlayerView = React.createClass
   render: ->
     colorName = if @props.color is Go.BLACK then 'black' else 'white'
+    stoneClassNames = "stone stone--#{colorName}"
 
     `<li className={this.props.uid ? '' : 'waiting'}>
-      <div className='stone stone--black'></div>
+      <div className={stoneClassNames}></div>
       {
         this.props.uid ?
           this.props.user ? this.props.user.displayName : 'Loading player info...'
@@ -16,7 +19,7 @@ PlayerView = React.createClass
       }
       {this.props.game[colorName+'Passed']() ? " ---  [ PASSED ]" : ''}
       <br />
-      {moment.duration(this.props.player_times[this.props.color]).humanize()}
+      {moment.duration(this.props.duration).humanize()}
       <br />
       {this.props.game.prisoners[this.props.color] }
       &nbsp; prisoners
