@@ -20,22 +20,61 @@
     margin: 0 0 2em 0;
   }
   li {
-    line-height: 40px;
-    margin-bottom: 10px;
+    margin-bottom: 30px;
     background: $pale;
-    border: 1px solid $paleBorder;
+    border: 2px solid $paleBorder;
     border-radius: 2px;
-    padding: 20px;
-    box-shadow: 0 1px 1px rgba(black, .12);
+    position: relative;
+    .player-info{
+      height: 50px;
+      line-height: 20px;
+      padding: 10px 60px;
+    }
+    .player-name{
+
+    }
+    .player-online-status{
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    .player-game-info{
+      background: transparent;
+      padding: 10px;
+      font-size: 14px;
+      color: rgba(black, .8);
+    }
+    .player-passed{
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding: 10px;
+      color: red;
+      text-transform: uppercase;
+      background: rgba(red, .1);
+    }
     &:last-child{
       margin-bottom: 0px;
     }
     &.waiting{
       color: grey;
     }
+    &:after{
+      content: ' ';
+      position: absolute;
+      top: -15px;
+      right: -15px;
+      width: 70px;
+      height: 70px;
+      background: white;
+      border-radius: 100%;
+      z-index: 1;
+      border: 2px solid $paleBorder
+    }
     .stone {
-      float: left;
-      margin-right: 15px;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      z-index: 2;
     }
     .btn-pass {
       float: right;
@@ -54,6 +93,15 @@
       }
     }
   }
+}
+
+
+.player-avatar{
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top: 0;
+  left: 0
 }
 
 .table {

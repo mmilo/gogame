@@ -148,30 +148,42 @@ PlayersView = React.createClass
   getInitialState: ->
     black_player: null
     white_player: null
+    black_uid: null
+    white_uid: null
     current_color: null
-    black_player_passed: @props.game.blackPassed()
-    white_player_passed: @props.game.whitePassed()
     player_times: @props.game.playerTimes()
 
   componentWillMount: ->
     @props.game.firebase.child('players').on 'value', (snapshot) =>
       players = snapshot.val() || {}
+
+      if players[Go.BLACK] and not @state.black_player
+        @observeUser(players[Go.BLACK], Go.BLACK)
+      if players[Go.WHITE] and not @state.white_player
+        @observeUser(players[Go.WHITE], Go.WHITE)
+
       @setState
-        black_player: players[Go.BLACK]
-        white_player: players[Go.WHITE]
+        black_uid: players[Go.BLACK]
+        white_uid: players[Go.WHITE]
         current_color: @props.game.current_color()
 
     @props.game.on 'board_state_changed', =>
       @setState
         current_color: @props.game.current_color()
-        black_player_passed: @props.game.blackPassed()
-        white_player_passed: @props.game.whitePassed()
         player_times: @props.game.playerTimes()
-    # Update the game clock
-    setInterval =>
-      @setState
-        player_times: @props.game.playerTimes()
-    , 1000
+
+    # Update the game clock every second
+    setInterval @updateClock, 1000
+
+  updateClock: ->
+    @setState player_times: @props.game.playerTimes()
+
+  observeUser: (uid, color) ->
+    @props.firebase.child('users').child(uid).on 'value', (snapshot) =>
+      attrs = {}
+      attrs["#{color}_player"] = snapshot.val()
+      console.dir attrs
+      @setState(attrs)
 
   handleClick: ->
     if @props.current_user?
@@ -181,32 +193,14 @@ PlayersView = React.createClass
 
   render: ->
     classes = "players turn--" + @state.current_color
-    pass_button_enabled = !@props.game.game_is_over and (if @state.current_color is Go.WHITE then @props.current_user?.uid is @state.white_player else @props.current_user?.uid is @state.black_player)
+    pass_button_enabled = !@props.game.game_is_over and (if @state.current_color is Go.WHITE then @props.current_user?.uid is @state.white_uid else @props.current_user?.uid is @state.black_uid)
 
     `<div className={classes}>
       <ul>
-        <li className={this.state.black_player ? '' : 'waiting'}>
-          <div className='stone stone--black'></div>
-          {this.state.black_player ? this.state.black_player : 'waiting for player 1 to join...'}
-          {this.state.black_player_passed ? " ---  [ PASSED ]" : ''}
-          <br />
-          {moment.duration(this.state.player_times[Go.BLACK]).humanize()}
-          <br />
-          {this.props.game.prisoners[Go.WHITE] }
-          &nbsp; prisoners
-        </li>
-        <li className={this.state.white_player ? '' : 'waiting'}>
-          <div className='stone stone--white'></div>
-          {this.state.white_player ? this.state.white_player : 'waiting for player 2 to join...'}
-          {this.state.white_player_passed ? " --- [ PASSED ]" : ''}
-          <br />
-          {moment.duration(this.state.player_times[Go.WHITE]).humanize()}
-          <br />
-          {this.props.game.prisoners[Go.BLACK] }
-          &nbsp; prisoners
-        </li>
+        <PlayerView color={Go.BLACK} uid={this.state.black_uid} user={this.state.black_player} game={this.props.game} duration={this.state.player_times[Go.BLACK]} />
+        <PlayerView color={Go.WHITE} uid={this.state.white_uid} user={this.state.white_player} game={this.props.game} duration={this.state.player_times[Go.WHITE]} />
       </ul>
-      {!this.state.black_player || !this.state.white_player ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : <PassView game={this.props.game} enabled={pass_button_enabled} />}
+      {!this.state.black_uid || !this.state.white_uid ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : <PassView game={this.props.game} enabled={pass_button_enabled} />}
     </div>
     `
 
@@ -222,11 +216,30 @@ ContainerView = React.createClass
   componentWillMount: ->
     window.view = this
     @props.firebase = new Firebase("https://intense-fire-8240.firebaseio.com/")
+    usersRef = @props.firebase.child('users')
+
     # TODO: scope auth properly and make it availabel to ancestor views
-    window.auth = new FirebaseSimpleLogin @props.firebase, (error, user) ->
+    window.auth = new FirebaseSimpleLogin @props.firebase, (error, user) =>
       if user
         Go.current_user = user
         Go.trigger('change:current_user')
+        # Save if new user
+        usersRef.child(user.uid).once 'value', (snap) ->
+          if snap.val() == null
+            userAttrs = _.pick(user, 'uid', 'displayName', 'provider', 'username')
+            _.defaults(userAttrs, { displayName: 'Anonymous', username: null })
+            usersRef.child(user.uid).set(userAttrs)
+
+        # Manage online state
+        connectionsRef = usersRef.child(user.uid).child('connections')
+        lastOnlineRef = usersRef.child(user.uid).child('lastOnline')
+        connectedRef = @props.firebase.child('.info/connected')
+        connectedRef.on 'value', (snap) =>
+          if snap.val() is true
+            con = connectionsRef.push(true)
+            con.onDisconnect().remove()
+            lastOnlineRef.onDisconnect().set(Firebase.ServerValue.TIMESTAMP)
+
       else if error
         alert error.message
     
@@ -252,7 +265,7 @@ ContainerView = React.createClass
         body =  `
           <div>
             <div className="game-controls">
-              <PlayersView game={this.state.game} current_user={this.state.current_user} />
+              <PlayersView game={this.state.game} current_user={this.state.current_user} firebase={this.props.firebase} />
               <AlertView game={this.state.game} />
             </div>
             <div className="game-board">
