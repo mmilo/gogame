@@ -226,8 +226,8 @@ ContainerView = React.createClass
         # Save if new user
         usersRef.child(user.uid).once 'value', (snap) ->
           if snap.val() == null
-            userAttrs = _.pick(user, 'uid', 'displayName', 'provider')
-            _.defaults(userAttrs, { displayName: 'Anonymous' })
+            userAttrs = _.pick(user, 'uid', 'displayName', 'provider', 'username')
+            _.defaults(userAttrs, { displayName: 'Anonymous', username: null })
             usersRef.child(user.uid).set(userAttrs)
 
         # Manage online state
