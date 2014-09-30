@@ -68,7 +68,7 @@
       background: white;
       border-radius: 100%;
       z-index: 1;
-      border: 2px solid $paleBorder
+      border: 2px solid $paleBorder;
     }
     .stone {
       position: absolute;
@@ -101,7 +101,9 @@
   height: 50px;
   position: absolute;
   top: 0;
-  left: 0
+  left: 0;
+	border: 2px solid $paleBorder;
+	border-width: 0 2px 2px 0;
 }
 
 .table {
