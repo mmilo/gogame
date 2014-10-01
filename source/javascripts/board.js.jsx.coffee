@@ -225,10 +225,9 @@ ContainerView = React.createClass
         Go.trigger('change:current_user')
         # Save if new user
         usersRef.child(user.uid).once 'value', (snap) ->
-          if snap.val() == null
-            userAttrs = _.pick(user, 'uid', 'displayName', 'provider', 'username')
-            _.defaults(userAttrs, { displayName: 'Anonymous', username: null })
-            usersRef.child(user.uid).set(userAttrs)
+          userAttrs = _.pick(user, 'uid', 'displayName', 'provider', 'username')
+          _.defaults(userAttrs, { displayName: 'Anonymous', username: null })
+          usersRef.child(user.uid).update(userAttrs)
 
         # Manage online state
         connectionsRef = usersRef.child(user.uid).child('connections')
