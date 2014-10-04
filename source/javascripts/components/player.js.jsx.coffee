@@ -1,6 +1,10 @@
 ###* @jsx React.DOM ###
 
 window.PlayerView = React.createClass
+
+  joinGame: ->
+    @props.joinGame(@props.color)
+
   render: ->
     colorName = if @props.color is Go.BLACK then 'black' else 'white'
     stoneClassNames = "stone stone--#{colorName}"
@@ -45,5 +49,8 @@ window.PlayerView = React.createClass
         Total time: {secondsToTime(this.props.duration)}
         <br />
         Prisoners: {this.props.game.prisoners[this.props.color] }
+
+        {!this.props.uid ? <input id="join-btn" type="button" value="Join" onClick={this.joinGame} /> : ''}
+
       </div>
     </li>`

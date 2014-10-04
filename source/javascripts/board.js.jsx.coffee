@@ -185,9 +185,9 @@ PlayersView = React.createClass
       console.dir attrs
       @setState(attrs)
 
-  handleClick: ->
+  joinGame: (color) ->
     if @props.current_user?
-      @props.game.join(@props.current_user.uid)
+      @props.game.join(@props.current_user.uid, color)
     else
       return alert('You must log in to join the game')
 
@@ -195,12 +195,13 @@ PlayersView = React.createClass
     classes = "players turn--" + @state.current_color
     pass_button_enabled = !@props.game.game_is_over and (if @state.current_color is Go.WHITE then @props.current_user?.uid is @state.white_uid else @props.current_user?.uid is @state.black_uid)
 
+
     `<div className={classes}>
       <ul>
-        <PlayerView color={Go.BLACK} uid={this.state.black_uid} user={this.state.black_player} game={this.props.game} duration={this.state.player_times[Go.BLACK]} />
-        <PlayerView color={Go.WHITE} uid={this.state.white_uid} user={this.state.white_player} game={this.props.game} duration={this.state.player_times[Go.WHITE]} />
+        <PlayerView color={Go.BLACK} uid={this.state.black_uid} user={this.state.black_player} game={this.props.game} duration={this.state.player_times[Go.BLACK]} joinGame={this.joinGame} />
+        <PlayerView color={Go.WHITE} uid={this.state.white_uid} user={this.state.white_player} game={this.props.game} duration={this.state.player_times[Go.WHITE]} joinGame={this.joinGame} />
       </ul>
-      {!this.state.black_uid || !this.state.white_uid ? <input id="join-btn" type="button" value="Join" onClick={this.handleClick} /> : <PassView game={this.props.game} enabled={pass_button_enabled} />}
+      {<PassView game={this.props.game} enabled={pass_button_enabled} />}
     </div>
     `
 

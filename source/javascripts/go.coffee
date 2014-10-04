@@ -51,14 +51,10 @@ class Go.Game extends Backbone.Model
     @board = @create_board()
     @trigger('board_state_changed')
 
-  join: (userId) =>
-    if !@players[Go.BLACK]?
-      @firebase.child('players').child(Go.BLACK).set(userId)
+  join: (userId, color) =>
+    if !@players[color]?
+      @firebase.child('players').child(color).set(userId)
       @firebase.setPriority(Go.STATUS.WAITING)
-      return true
-    else if !@players[Go.WHITE]?
-      @firebase.child('players').child(Go.WHITE).set(userId)
-      @firebase.setPriority(Go.STATUS.FULL)
       return true
     else
       # No available place
