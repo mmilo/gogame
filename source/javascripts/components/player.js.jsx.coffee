@@ -42,7 +42,7 @@ window.PlayerView = React.createClass
           <div className='player-passed'>passed</div>
             : ''
         }
-        Total time: {moment.duration(this.props.duration).humanize()}
+        Total time: {secondsToTime(this.props.duration)}
         <br />
         Prisoners: {this.props.game.prisoners[this.props.color] }
       </div>
