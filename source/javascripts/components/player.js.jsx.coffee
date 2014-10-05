@@ -31,7 +31,7 @@ window.PlayerView = React.createClass
         </div>
         <div className='player-online-status'>
           { this.props.user ?
-              this.props.user.connections ? 'Online' : "Offline (since "+this.props.user.lastOnline+")"
+              this.props.user.connections ? 'Online' : "Offline (since "+moment.duration((this.props.user.lastOnline - (new Date()).valueOf())).humanize()+" ago)"
             : ''
           }
         </div>
@@ -50,7 +50,7 @@ window.PlayerView = React.createClass
         <br />
         Prisoners: {this.props.game.prisoners[this.props.color] }
 
-        {!this.props.uid ? <input id="join-btn" type="button" value="Join" onClick={this.joinGame} /> : ''}
+        {!this.props.uid ? <input className="join-btn" type="button" value="Join" onClick={this.joinGame} /> : ''}
 
       </div>
     </li>`
