@@ -242,11 +242,17 @@ ContainerView = React.createClass
           Go.trigger('change:current_user')
           @setState(current_user: storedUser, has_authed: true)
 
-          # Fill out any missing attributes
-          userAttrs = _.pick(storedUser, 'uid', 'displayName', 'provider', 'username')
-          defaultedAttributes = _.defaults(_.clone(userAttrs), { displayName: 'Anonymous', username: 'unknown' })
-          unless _.isEqual(userAttrs, defaultedAttributes)
-            currentUserRef.update(defaultedAttributes)
+          if storedUser
+            # Update / complete missing attributes
+            userAttrs = _.pick(storedUser, 'uid', 'displayName', 'provider', 'username')
+            defaultedAttributes = _.defaults(_.clone(userAttrs), { displayName: 'Anonymous', username: 'unknown' })
+            unless _.isEqual(userAttrs, defaultedAttributes)
+              currentUserRef.update(defaultedAttributes)
+          else
+            # Save new user
+            userAttrs = _.pick(user, 'uid', 'displayName', 'provider', 'username')
+            defaultedAttributes = _.defaults(_.clone(userAttrs), { displayName: 'Anonymous', username: 'unknown' })
+            currentUserRef.set(defaultedAttributes)
 
         # Manage online state
         @props.firebase.child('.info/connected').on 'value', (snap) =>
@@ -259,9 +265,9 @@ ContainerView = React.createClass
             # Then (and only then to avoid races) set the connection
             con.set(true)
 
-      else if error
+      else
+        alert error.message if error
         @setState has_authed: true
-        alert error.message
     
     if (gameId = getParameterByName('g'))?
       window.game = new Go.Game({ size: 19, game_id: gameId })
