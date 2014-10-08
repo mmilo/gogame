@@ -49,7 +49,7 @@ BoardView = React.createClass
 
 NewGameView = React.createClass
   handleClick: ->
-    gameId = new Date().valueOf()
+    gameId = Go.randomName()
     window.location.replace("#{window.location.protocol}//#{window.location.host}/?g=#{gameId}")
     return
   render: ->
@@ -304,11 +304,14 @@ ContainerView = React.createClass
       games = []
       _.each @state.open_games, (game, id) ->
         path = "/?g=#{id}"
-        games.push `<li><a href={path}> game {id}</a> </li>`
+        games.push `<li><a href={path}>{id}</a> </li>`
       body = `
-        <ul>
-          {games}
-        </ul>`
+        <div>
+          <h2>Open games</h2>
+          <ul>
+            {games}
+          </ul>
+        </div>`
     else if @state.open_games_ready
       body = "Looks like there aren't any open games."
     else
