@@ -217,28 +217,30 @@ ContainerView = React.createClass
   componentWillMount: ->
     window.view = this
     @props.firebase = new Firebase("https://intense-fire-8240.firebaseio.com/")
-    usersRef = @props.firebase.child('users')
+    
 
     # TODO: scope auth properly and make it availabel to ancestor views
     window.auth = new FirebaseSimpleLogin @props.firebase, (error, user) =>
       if user
         Go.current_user = user
         Go.trigger('change:current_user')
+        currentUserRef = @props.firebase.child('users').child(user.uid)
         # Save if new user
-        usersRef.child(user.uid).once 'value', (snap) ->
+        currentUserRef.once 'value', (snap) ->
           userAttrs = _.pick(user, 'uid', 'displayName', 'provider', 'username')
           _.defaults(userAttrs, { displayName: 'Anonymous', username: null })
-          usersRef.child(user.uid).update(userAttrs)
+          currentUserRef.update(userAttrs)
 
         # Manage online state
-        connectionsRef = usersRef.child(user.uid).child('connections')
-        lastOnlineRef = usersRef.child(user.uid).child('lastOnline')
-        connectedRef = @props.firebase.child('.info/connected')
-        connectedRef.on 'value', (snap) =>
+        @props.firebase.child('.info/connected').on 'value', (snap) =>
           if snap.val() is true
-            con = connectionsRef.push(true)
+            # Get a ref for a new connection
+            con = currentUserRef.child('connections').push()
+            # Set the onDisconnect handling
             con.onDisconnect().remove()
-            lastOnlineRef.onDisconnect().set(Firebase.ServerValue.TIMESTAMP)
+            currentUserRef.child('lastOnline').onDisconnect().set(Firebase.ServerValue.TIMESTAMP)
+            # Then (and only then to avoid races) set the connection
+            con.set(true)
 
       else if error
         alert error.message
