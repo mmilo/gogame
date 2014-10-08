@@ -9,6 +9,10 @@ class Go.Game extends Backbone.Model
 
     @firebase.child('players').on 'value', (snapshot) =>
       @players = snapshot.val() || {}
+      if @players[Go.BLACK]? and @players[Go.WHITE]?
+        @firebase.setPriority(Go.STATUS.FULL)
+      else if @players[Go.BLACK]? or @players[Go.WHITE]?
+        @firebase.setPriority(Go.STATUS.WAITING)
 
     @firebase.child('moves').on 'value', (snapshot) =>
       moves = snapshot.val() || {}
@@ -54,7 +58,6 @@ class Go.Game extends Backbone.Model
   join: (userId, color) =>
     if !@players[color]?
       @firebase.child('players').child(color).set(userId)
-      @firebase.setPriority(Go.STATUS.WAITING)
       return true
     else
       # No available place
