@@ -1,13 +1,15 @@
 ###* @jsx React.DOM ###
 
 window.PlayerView = React.createClass
+  getInitialState: ->
+    currently_online: false
 
-  joinGame: ->
-    @props.joinGame(@props.color)
+  componentWillMount: ->
+    @props.firebase.child('presence').child(@props.user.uid).on 'value', (snap) =>
+      @setState currently_online: snap.val()?
 
   render: ->
-    colorName = if @props.color is Go.BLACK then 'black' else 'white'
-    stoneClassNames = "stone stone--#{colorName}"
+    stoneClassNames = "stone stone--#{@props.color}"
 
     if @props.user
       if @props.user.provider is 'twitter'
@@ -18,20 +20,15 @@ window.PlayerView = React.createClass
     else
       displayName = 'Loading player info...'
 
-    `<li className={this.props.uid ? '' : 'waiting'}>
+    `<li>
       <div className='player-info'>
         <div className={stoneClassNames}></div>
         <div className='player-name'>
-          {
-            this.props.uid ?
-              displayName
-            :
-              'Waiting for player to join...'
-          }
+          { displayName }
         </div>
         <div className='player-online-status'>
           { this.props.user ?
-              this.props.user.connections ? 'Online' : "Offline (since "+moment.duration((this.props.user.lastOnline - (new Date()).valueOf())).humanize()+" ago)"
+              this.state.currently_online ? 'Online' : "Offline (since "+moment.duration((this.props.user.lastOnline - (new Date()).valueOf())).humanize()+" ago)"
             : ''
           }
         </div>
@@ -42,15 +39,29 @@ window.PlayerView = React.createClass
       </div>
       <div className='player-game-info'>
         {
-          this.props.game[colorName+'Passed']() ?
+          this.props.game[this.props.color+'Passed']() ?
           <div className='player-passed'>passed</div>
             : ''
         }
         Total time: {secondsToTime(this.props.duration)}
         <br />
         Prisoners: {this.props.game.prisoners[this.props.color] }
-
-        {!this.props.uid ? <input className="join-btn" type="button" value="Join" onClick={this.joinGame} /> : ''}
-
       </div>
     </li>`
+
+window.PlayerSpotView = React.createClass
+  joinGame: ->
+    @props.joinGame(@props.color)
+
+  render: ->
+    stoneClassNames = "stone stone--#{@props.color}"
+
+    `<li className='waiting'>
+      <div className='player-info'>
+        <div className={stoneClassNames}></div>
+        <div className='player-name'> Waiting for player to join...  </div>
+      </div>
+      <input className="join-btn" type="button" value="Join" onClick={this.joinGame} />
+    </li>`
+
+

@@ -198,8 +198,16 @@ PlayersView = React.createClass
 
     `<div className={classes}>
       <ul>
-        <PlayerView color={Go.BLACK} uid={this.state.black_uid} user={this.state.black_player} game={this.props.game} duration={this.state.player_times[Go.BLACK]} joinGame={this.joinGame} />
-        <PlayerView color={Go.WHITE} uid={this.state.white_uid} user={this.state.white_player} game={this.props.game} duration={this.state.player_times[Go.WHITE]} joinGame={this.joinGame} />
+        { this.state.black_player ? 
+          <PlayerView color={Go.BLACK} user={this.state.black_player} game={this.props.game} duration={this.state.player_times[Go.BLACK]} firebase={this.props.firebase} />
+            :
+          <PlayerSpotView color={Go.BLACK} joinGame={this.joinGame} />
+        }
+        { this.state.white_player ? 
+          <PlayerView color={Go.WHITE} user={this.state.white_player} game={this.props.game} duration={this.state.player_times[Go.WHITE]} firebase={this.props.firebase} />
+            :
+          <PlayerSpotView color={Go.WHITE} joinGame={this.joinGame} />
+        }
       </ul>
       {<PassView game={this.props.game} enabled={pass_button_enabled} />}
     </div>
@@ -235,7 +243,7 @@ ContainerView = React.createClass
         @props.firebase.child('.info/connected').on 'value', (snap) =>
           if snap.val() is true
             # Get a ref for a new connection
-            con = currentUserRef.child('connections').push()
+            con = @props.firebase.child('presence').child(user.uid).push()
             # Set the onDisconnect handling
             con.onDisconnect().remove()
             currentUserRef.child('lastOnline').onDisconnect().set(Firebase.ServerValue.TIMESTAMP)
@@ -298,6 +306,10 @@ ContainerView = React.createClass
           &nbsp;
           &nbsp;
           <NewGameView />
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          <PlayersOnlineView firebase={this.props.firebase} />
         </div>
         <div className='user-session'>
           <UserSessionView current_user={this.state.current_user} />
@@ -307,6 +319,17 @@ ContainerView = React.createClass
         { body }
       </div>
     </div>`
+
+PlayersOnlineView = React.createClass
+  getInitialState: ->
+    players_online_count: 'loading'
+
+  componentWillMount: ->
+    @props.firebase.child('presence').on 'value', (snap) =>
+      @setState players_online_count: _.keys(snap.val() || {}).length
+
+  render: ->
+    `<span>{this.state.players_online_count} players online</span>`
 
 
 React.renderComponent `<ContainerView environment={Go} />`, document.getElementById("main")
