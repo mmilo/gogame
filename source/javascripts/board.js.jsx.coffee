@@ -98,7 +98,8 @@ UserSessionView = React.createClass
   render: ->
     if @props.current_user?
       `<div>
-        Logged in as: {this.props.current_user.displayName}
+        Logged in as &nbsp;
+        <b>{this.props.current_user.displayName}</b>
         <input type="button" value="logout" onClick={this.logout} />
       </div>`
     else if @state.signingUp

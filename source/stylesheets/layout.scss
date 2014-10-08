@@ -16,10 +16,10 @@
 }
 
 .navigation {
-  @include span-columns(4);
+  @include span-columns(6);
 }
 .user-session {
-  @include span-columns(8);
+  @include span-columns(6);
   text-align: right;
   input {
     margin-left: 15px;
