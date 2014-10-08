@@ -96,7 +96,9 @@ UserSessionView = React.createClass
     @setState(loggingIn: false, signingUp: false)
 
   render: ->
-    if @props.current_user?
+    if !@props.has_authed
+      `<span>loading</span>`
+    else if @props.current_user?
       `<div>
         Logged in as &nbsp;
         <b>{this.props.current_user.displayName}</b>
@@ -222,6 +224,7 @@ ContainerView = React.createClass
     current_user: @props.environment.current_user
     open_games: {}
     open_games_ready: false
+    has_authed: false
 
   componentWillMount: ->
     window.view = this
@@ -237,7 +240,7 @@ ContainerView = React.createClass
           storedUser = snap.val()
           Go.current_user = storedUser
           Go.trigger('change:current_user')
-          @setState current_user: storedUser
+          @setState(current_user: storedUser, has_authed: true)
 
           # Fill out any missing attributes
           userAttrs = _.pick(storedUser, 'uid', 'displayName', 'provider', 'username')
@@ -257,6 +260,7 @@ ContainerView = React.createClass
             con.set(true)
 
       else if error
+        @setState has_authed: true
         alert error.message
     
     if (gameId = getParameterByName('g'))?
@@ -318,7 +322,7 @@ ContainerView = React.createClass
           <PlayersOnlineView firebase={this.props.firebase} />
         </div>
         <div className='user-session'>
-          <UserSessionView current_user={this.state.current_user} />
+          <UserSessionView has_authed={this.state.has_authed} current_user={this.state.current_user} />
         </div>
       </div>
       <div id='body'>
