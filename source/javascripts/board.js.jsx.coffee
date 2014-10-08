@@ -98,7 +98,7 @@ UserSessionView = React.createClass
   render: ->
     if @props.current_user?
       `<div>
-        Logged in as: {this.props.current_user.uid}
+        Logged in as: {this.props.current_user.displayName}
         <input type="button" value="logout" onClick={this.logout} />
       </div>`
     else if @state.signingUp
@@ -230,14 +230,19 @@ ContainerView = React.createClass
     # TODO: scope auth properly and make it availabel to ancestor views
     window.auth = new FirebaseSimpleLogin @props.firebase, (error, user) =>
       if user
-        Go.current_user = user
-        Go.trigger('change:current_user')
         currentUserRef = @props.firebase.child('users').child(user.uid)
-        # Save if new user
-        currentUserRef.once 'value', (snap) ->
-          userAttrs = _.pick(user, 'uid', 'displayName', 'provider', 'username')
-          _.defaults(userAttrs, { displayName: 'Anonymous', username: null })
-          currentUserRef.update(userAttrs)
+        currentUserRef.on 'value', (snap) =>
+          # Update our local version
+          storedUser = snap.val()
+          Go.current_user = storedUser
+          Go.trigger('change:current_user')
+          @setState current_user: storedUser
+
+          # Fill out any missing attributes
+          userAttrs = _.pick(storedUser, 'uid', 'displayName', 'provider', 'username')
+          defaultedAttributes = _.defaults(_.clone(userAttrs), { displayName: 'Anonymous', username: 'unknown' })
+          unless _.isEqual(userAttrs, defaultedAttributes)
+            currentUserRef.update(defaultedAttributes)
 
         # Manage online state
         @props.firebase.child('.info/connected').on 'value', (snap) =>
