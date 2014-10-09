@@ -55,7 +55,7 @@ window.PlayerView = React.createClass
       </div>
       <div className='player-game-info'>
         {
-          this.props.game[this.props.color+'Passed']() ?
+          this.props.game.showPlayerPassed(this.props.color) ?
           <div className='player-passed'>passed</div>
             : ''
         }

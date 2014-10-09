@@ -96,12 +96,11 @@ class Go.Game extends Backbone.Model
     else
       {}
 
-
-  whitePassed: ->
-    @current_color() is Go.BLACK and !!@lastMove()?.pass
-
-  blackPassed: ->
-    @current_color() is Go.WHITE and !!@lastMove()?.pass
+  showPlayerPassed: (color) ->
+    if @current_color() is color
+      @accepted_moves[@accepted_moves.length - 1]?.pass
+    else
+      @accepted_moves[@accepted_moves.length - 1]?.pass and @accepted_moves[@accepted_moves.length - 2]?.pass
 
   # Called when the game ends (both players passed)
   end_game: ->
