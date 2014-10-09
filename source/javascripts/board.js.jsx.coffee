@@ -149,8 +149,6 @@ SignupAndLoginForm = React.createClass
 
 PlayersView = React.createClass
   getInitialState: ->
-    black_player: null
-    white_player: null
     black_uid: null
     white_uid: null
     current_color: null
@@ -159,34 +157,10 @@ PlayersView = React.createClass
   componentWillMount: ->
     @props.game.firebase.child('players').on 'value', (snapshot) =>
       players = snapshot.val() || {}
-
-      if players[Go.BLACK] and not @state.black_player
-        @observeUser(players[Go.BLACK], Go.BLACK)
-      if players[Go.WHITE] and not @state.white_player
-        @observeUser(players[Go.WHITE], Go.WHITE)
-
-      @setState
-        black_uid: players[Go.BLACK]
-        white_uid: players[Go.WHITE]
-        current_color: @props.game.current_color()
+      @setState(black_uid: players[Go.BLACK], white_uid: players[Go.WHITE])
 
     @props.game.on 'board_state_changed', =>
-      @setState
-        current_color: @props.game.current_color()
-        player_times: @props.game.playerTimes()
-
-    # Update the game clock every second
-    setInterval @updateClock, 1000
-
-  updateClock: ->
-    @setState player_times: @props.game.playerTimes()
-
-  observeUser: (uid, color) ->
-    @props.firebase.child('users').child(uid).on 'value', (snapshot) =>
-      attrs = {}
-      attrs["#{color}_player"] = snapshot.val()
-      console.dir attrs
-      @setState(attrs)
+      @setState(current_color: @props.game.current_color())
 
   joinGame: (color) ->
     if @props.current_user?
@@ -201,13 +175,13 @@ PlayersView = React.createClass
 
     `<div className={classes}>
       <ul>
-        { this.state.black_player ? 
-          <PlayerView color={Go.BLACK} user={this.state.black_player} game={this.props.game} duration={this.state.player_times[Go.BLACK]} firebase={this.props.firebase} />
+        { this.state.black_uid ? 
+          <PlayerView color={Go.BLACK} game={this.props.game} firebase={this.props.firebase} uid={this.state.black_uid}  />
             :
           <PlayerSpotView color={Go.BLACK} joinGame={this.joinGame} />
         }
-        { this.state.white_player ? 
-          <PlayerView color={Go.WHITE} user={this.state.white_player} game={this.props.game} duration={this.state.player_times[Go.WHITE]} firebase={this.props.firebase} />
+        { this.state.white_uid ? 
+          <PlayerView color={Go.WHITE} game={this.props.game} firebase={this.props.firebase} uid={this.state.white_uid} />
             :
           <PlayerSpotView color={Go.WHITE} joinGame={this.joinGame} />
         }
