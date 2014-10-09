@@ -73,11 +73,10 @@ window.PlayerSpotView = React.createClass
     stoneClassNames = "stone stone--#{@props.color}"
 
     `<li className='waiting'>
-      <div className='player-info'>
-        <div className={stoneClassNames}></div>
-        <div className='player-name'> Waiting for player to join...  </div>
-      </div>
-      <input className="join-btn" type="button" value="Join" onClick={this.joinGame} />
+      <div className={stoneClassNames}></div>
+      <span>This position is open. Want to play?</span>
+      <br />
+      <input className="join-btn" type="button" value={"Join as "+this.props.color} onClick={this.joinGame} />
     </li>`
 
 
