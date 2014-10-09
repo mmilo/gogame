@@ -32,7 +32,7 @@ window.PlayerView = React.createClass
       if @state.user.provider is 'twitter'
         avatarPath = "http://avatars.io/twitter/#{@state.user.username}?size=small"
       else
-        avatarPath = "http://www.gravatar.com/avatar/#{@state.user.email}?s=50&d=identicon"
+        avatarPath = "http://www.gravatar.com/avatar/#{md5(@state.user.displayName+'')}?s=50&d=retro"
       displayName = @state.user.displayName or "Unknown"
       onlineState = if @state.currently_online then 'Online' else "Offline (since #{moment.duration(@state.user.lastOnline - new Date().valueOf()).humanize()} ago)"
     else

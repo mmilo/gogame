@@ -219,13 +219,13 @@ ContainerView = React.createClass
           if storedUser
             # Update / complete missing attributes
             userAttrs = _.pick(storedUser, 'uid', 'displayName', 'provider', 'username')
-            defaultedAttributes = _.defaults(_.clone(userAttrs), { displayName: 'Anonymous', username: 'unknown' })
+            defaultedAttributes = _.defaults(_.clone(userAttrs), { displayName: Go.anonymousUserDisplayName(), username: 'unknown' })
             unless _.isEqual(userAttrs, defaultedAttributes)
               currentUserRef.update(defaultedAttributes)
           else
             # Save new user
             userAttrs = _.pick(user, 'uid', 'displayName', 'provider', 'username')
-            defaultedAttributes = _.defaults(_.clone(userAttrs), { displayName: 'Anonymous', username: 'unknown' })
+            defaultedAttributes = _.defaults(_.clone(userAttrs), { displayName: Go.anonymousUserDisplayName(), username: 'unknown' })
             currentUserRef.set(defaultedAttributes)
 
         # Manage online state

@@ -1,4 +1,5 @@
 //= require lib/moment
+//= require lib/md5
 
 
 //= require init
