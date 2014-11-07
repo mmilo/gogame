@@ -241,7 +241,7 @@ ContainerView = React.createClass
 
       else
         alert error.message if error
-        @setState has_authed: true
+        @setState(has_authed: true, current_user: null)
     
     if (gameId = getParameterByName('g'))?
       window.game = new Go.Game({ size: 19, game_id: gameId })
