@@ -61,7 +61,7 @@ window.PlayerView = React.createClass
         }
         Total time: {secondsToTime(this.state.duration)}
         <br />
-        Prisoners: {this.props.game.prisoners[this.props.color] }
+        Prisoners: {this.props.game.prisoners[Go.otherColor(this.props.color)] }
       </div>
     </li>`
 
