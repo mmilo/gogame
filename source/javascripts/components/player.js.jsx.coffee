@@ -56,12 +56,17 @@ window.PlayerView = React.createClass
       <div className='player-game-info'>
         {
           this.props.game.showPlayerPassed(this.props.color) ?
-          <div className='player-passed'>passed</div>
+          <div className='player-badge player-passed'>passed</div>
+            : ''
+        }
+        {
+          this.props.game.showPlayerResigned(this.props.color) ?
+          <div className='player-badge player-resigned'>resigned</div>
             : ''
         }
         Total time: {secondsToTime(this.state.duration)}
         <br />
-        Prisoners: {this.props.game.prisoners[this.props.color] }
+        Prisoners: {this.props.game.prisoners[Go.otherColor(this.props.color)] }
       </div>
     </li>`
 

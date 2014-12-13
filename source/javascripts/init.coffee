@@ -9,6 +9,15 @@ window.Go = {
     ENDED: 3
   }
 }
+
+Go.otherColor = (color) ->
+  if color is Go.BLACK
+    return Go.WHITE
+  else if color is Go.WHITE
+    return Go.BLACK
+  else
+    null
+
 _.extend(Go, Backbone.Events)
 Go.anonymousUserDisplayName = -> "Anonymous-#{new Date().valueOf()}"
 Go.GO_WORDS = ['aji', 'aji', 'amarigatachi', 'amashi', 'arate', 'atari', 'atekomi', 'atsumi', 'attachment', 'aya', 'bamboo-joint', 'take-fu', 'boshi', 'bo-tsugi', 'tsukiatari', 'chosei', 'chuban', 'cross-cut', 'current-territory', 'cut', 'cutting-point', 'cutting-stones', 'dame', 'damezumari', 'dango', 'degiri', 'dragon', 'eye', 'kikashi', 'fujite', 'fukure', 'furikawari', 'fuseki', 'geta', 'gote', 'gukei', 'guzumi', 'haengma', 'hamete', 'hanamiko', 'hane', 'hanedashi', 'hanekomi', 'hasami', 'hazama-tobi', 'hiki', 'hiraki', 'honte', 'hoshi', 'ijime', 'ikken-tobi', 'influence', 'insei', 'uchikomi', 'ipponmichi', 'jigo', 'jitsuri', 'joseki', 'josen', 'jubango', 'kakari', 'kakae', 'kake', 'kakoi', 'karai', 'karui', 'kata', 'katteyomi', 'katatsuki', 'katachi', 'keima', 'keimagakari', 'keshi', 'kiai', 'kibitz', 'kikasare', 'kikashi', 'kiri', 'ko', 'kogeima', 'komi', 'komoku', 'korigatachi', 'kosumi', 'kosumi-tsuke', 'kyuba', 'liberty', 'life', 'maido', 'magari', 'mannenko', 'me', 'meijin', 'miai', 'mochikomi', 'moku', 'mokuhazushi', 'motare', 'movement', 'moyo', 'muko', 'myoshu', 'nakade', 'nigiri', 'niken-jimari', 'nikentobi', 'nobi', 'nose-tesuji', 'notchers', 'nozoki', 'nurui', 'oba', 'ogeima', 'oiotoshi', 'oki', 'onigatachi', 'oshi-tsubushi', 'pillbox', 'pincer', 'point', 'ponnuki', 'prisoners', 'sabaki', 'sagari', 'sangenbasami', 'san-san', 'sanrensei', 'saru-suberi', 'sashikomi', 'seiza', 'seki', 'semeai', 'semedori', 'sen-ai-sen', 'sente', 'shibori', 'shicho', 'shichoatari', 'shimari', 'shinogi', 'shinte', 'shobute', 'shodan', 'shoulder-hit', 'squeeze', 'snap-back', 'suberi', 'suji', 'superko', 'takamoku', 'takefu', 'tasuki-fuseki', 'tedokoro', 'tedomari', 'teire', 'tejun', 'tengen', 'tent', 'tenuki', 'territory', 'tesuji', 'thickness', 'throw-in', 'tiger', 'tobi', 'tsugi', 'tsuke', 'tsukiatari', 'tsumego', 'tsurunosugomori', 'uchikomi', 'wall', 'warikomi', 'wariuchi', 'watari', 'wedge', 'yose', 'yoseko', 'yosu-miru' ]

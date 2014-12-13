@@ -89,6 +89,10 @@ class Go.Game extends Backbone.Model
   lastMove: ->
     _.last(@accepted_moves)
 
+  lastMoveBy: (color) ->
+    oddEven = if color is Go.BLACK then 0 else 1
+    _.last(_.filter(@accepted_moves, (move) -> move.index % 2 is oddEven))
+
   lastStone: ->
     move = _.last(_.where(@accepted_moves, { pass: false }))
     if move
@@ -96,11 +100,15 @@ class Go.Game extends Backbone.Model
     else
       {}
 
-  showPlayerPassed: (color) ->
-    if @current_color() is color
-      @accepted_moves[@accepted_moves.length - 1]?.pass
+  showPlayerPassed: (color) =>
+    if @lastMoveBy(color)?.pass
+      # Only show pass for the current player if the move before was also a pass.
+      return if @current_color() is color then @lastMoveBy(Go.otherColor(color))?.pass else true
     else
-      @accepted_moves[@accepted_moves.length - 1]?.pass and @accepted_moves[@accepted_moves.length - 2]?.pass
+      false
+
+  showPlayerResigned: (color) ->
+    @lastMoveBy(color)?.resign
 
   # Called when the game ends (both players passed)
   end_game: ->
@@ -112,6 +120,8 @@ class Go.Game extends Backbone.Model
   play: (move, options={}) =>
     if move.pass
       console.log "Attempting to #{if options.replaying then 'Re-' else ''}Play PASS"
+    else if move.resign
+      console.log "Attempting to #{if options.replaying then 'Re-' else ''}Play RESIGN"
     else
       console.log "Attempting to #{if options.replaying then 'Re-' else ''}Play move at " + move.x + ", " + move.y
 
@@ -124,7 +134,11 @@ class Go.Game extends Backbone.Model
         console.warn "Ignoring move - the game is over"
         return false
 
-    if move.pass
+    if move.resign
+      @accept_move(move, options.replaying)
+      @end_game()
+      return true
+    else if move.pass
       @end_game() if @accepted_moves[@move_number()-1]?.pass
       @accept_move(move, options.replaying)
       return true
@@ -171,23 +185,25 @@ class Go.Game extends Backbone.Model
 
   accept_move: (move, replaying=false) ->
     # Set and normalise attributes
-    if move.pass is true
+    if move.pass is true or move.resign is true
       move.x = move.y = null
+      move.resign = null if move.pass
+      move.pass = null if move.resign
     else
-      move.pass = false
-    move = { x: move.x, y: move.y, pass: move.pass, index: @move_number(), played_at: move.played_at }
+      move.pass = move.resign = null
+
+    move = { x: move.x, y: move.y, pass: move.pass, resign: move.resign, index: @move_number(), played_at: move.played_at }
     # Register that it's been played at that index in the @accepted_moves
     @accepted_moves[move.index] = move
     # Store it in Firebase
     unless replaying
       move.played_at = Firebase.ServerValue.TIMESTAMP
       @firebase.child("moves/move-#{move.index}").setWithPriority(move, move.index)
-    if move.pass
-      # TODO: Play pass sound
+    if move.pass or move.resign
+      # TODO: Play pass/resign sound
     else
       @clickSound.play()
     # Trigger event for views
-
     @trigger('board_state_changed')
 
   playerTimes: ->
@@ -211,7 +227,7 @@ class Go.Game extends Backbone.Model
   movesAreEqual: (move_a, move_b) ->
     return false if !move_a or !move_b
     return false unless move_a.index is move_b.index
-    return true if move_a.pass and move_b.pass
+    return true if (move_a.pass and move_b.pass) or (move_a.resign and move_b.resign)
     return true if move_a.x is move_b.x and move_a.y is move_b.y
     false
 

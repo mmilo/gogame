@@ -67,9 +67,15 @@ AlertView = React.createClass
 PassView = React.createClass
   handleClick: (e) ->
     @props.game.play(pass: true)
-
   render: ->
     `<input className="btn-pass" type="button" value="Pass" onClick={this.handleClick} disabled={!this.props.enabled} />`
+
+ResignView = React.createClass
+  handleClick: (e) ->
+    @props.game.play(resign: true)
+
+  render: ->
+    `<input className="btn-resign" type="button" value="Resign" onClick={this.handleClick} disabled={!this.props.enabled} />`
 
 UserSessionView = React.createClass
   getInitialState: ->
@@ -171,6 +177,7 @@ PlayersView = React.createClass
   render: ->
     classes = "players turn--" + @state.current_color
     pass_button_enabled = !@props.game.game_is_over and (if @state.current_color is Go.WHITE then @props.current_user?.uid is @state.white_uid else @props.current_user?.uid is @state.black_uid)
+    resign_button_enabled = !@props.game.game_is_over
 
 
     `<div className={classes}>
@@ -187,6 +194,9 @@ PlayersView = React.createClass
         }
       </ul>
       {<PassView game={this.props.game} enabled={pass_button_enabled} />}
+      <br />
+      <br />
+      {<ResignView game={this.props.game} enabled={resign_button_enabled} />}
     </div>
     `
 
@@ -245,7 +255,7 @@ ContainerView = React.createClass
     
     if (gameId = getParameterByName('g'))?
       window.game = new Go.Game({ size: 19, game_id: gameId })
-      @setState(game: game)
+      @setState(game: game, gameId: gameId)
       game.once 'ready', => @setState game_ready: true
       game.firebase.child('moves').on 'value', @onGameUpdate
     else
@@ -271,6 +281,7 @@ ContainerView = React.createClass
             <div className="game-board">
               <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
             </div>
+            <a href={"https://intense-fire-8240.firebaseio.com/games/"+this.state.gameId} target="_blank" style={ {color: '#ddd', fontSize: '11px', float: 'right'} } >game data</a>
           </div>`
       else
         'loading game...'
