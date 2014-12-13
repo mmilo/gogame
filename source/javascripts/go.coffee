@@ -97,10 +97,14 @@ class Go.Game extends Backbone.Model
       {}
 
   showPlayerPassed: (color) ->
+    return false unless @lastMove()?.pass
+
     if @current_color() is color
-      @accepted_moves[@accepted_moves.length - 1]?.pass
+      # Only show pass for the current player if the move befor
+      # was also a pass. (ie. Don't show "passed" while still playing)
+      return @accepted_moves[@accepted_moves.length - 2]?.pass
     else
-      @accepted_moves[@accepted_moves.length - 1]?.pass and @accepted_moves[@accepted_moves.length - 2]?.pass
+      true
 
   # Called when the game ends (both players passed)
   end_game: ->
