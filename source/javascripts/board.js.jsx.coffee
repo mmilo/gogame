@@ -245,7 +245,7 @@ ContainerView = React.createClass
     
     if (gameId = getParameterByName('g'))?
       window.game = new Go.Game({ size: 19, game_id: gameId })
-      @setState(game: game)
+      @setState(game: game, gameId: gameId)
       game.once 'ready', => @setState game_ready: true
       game.firebase.child('moves').on 'value', @onGameUpdate
     else
@@ -271,6 +271,7 @@ ContainerView = React.createClass
             <div className="game-board">
               <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
             </div>
+            <a href={"https://intense-fire-8240.firebaseio.com/games/"+this.state.gameId} target="_blank" style={ {color: '#ddd', fontSize: '11px', float: 'right'} } >game data</a>
           </div>`
       else
         'loading game...'
