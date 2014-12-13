@@ -43,14 +43,20 @@
       font-size: 14px;
       color: rgba(black, .8);
     }
-    .player-passed{
+    .player-badge{
       position: absolute;
       bottom: 0;
       right: 0;
       padding: 10px;
-      color: red;
       text-transform: uppercase;
+    }
+    .player-resigned{
+      color: red;
       background: rgba(red, .1);
+    }
+    .player-passed{
+      color: blue;
+      background: rgba(blue, .1);
     }
     &:last-child{
       margin-bottom: 0px;
