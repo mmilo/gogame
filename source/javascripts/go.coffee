@@ -89,6 +89,10 @@ class Go.Game extends Backbone.Model
   lastMove: ->
     _.last(@accepted_moves)
 
+  lastMoveBy: (color) ->
+    oddEven = if color is Go.BLACK then 0 else 1
+    _.last(_.filter(@accepted_moves, (move) -> move.index % 2 is oddEven))
+
   lastStone: ->
     move = _.last(_.where(@accepted_moves, { pass: false }))
     if move
@@ -96,19 +100,15 @@ class Go.Game extends Backbone.Model
     else
       {}
 
-  showPlayerPassed: (color) ->
-    return false unless @lastMove()?.pass
-
-    if @current_color() is color
-      # Only show pass for the current player if the move befor
-      # was also a pass. (ie. Don't show "passed" while still playing)
-      return @accepted_moves[@accepted_moves.length - 2]?.pass
+  showPlayerPassed: (color) =>
+    if @lastMoveBy(color)?.pass
+      # Only show pass for the current player if the move before was also a pass.
+      return if @current_color() is color then @lastMoveBy(Go.otherColor(color))?.pass else true
     else
-      true
+      false
 
   showPlayerResigned: (color) ->
-    return false unless @lastMove()?.resign
-    return @current_color() isnt color
+    @lastMoveBy(color)?.resign
 
   # Called when the game ends (both players passed)
   end_game: ->
