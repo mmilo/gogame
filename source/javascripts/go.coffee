@@ -94,7 +94,7 @@ class Go.Game extends Backbone.Model
     _.last(_.filter(@accepted_moves, (move) -> move.index % 2 is oddEven))
 
   lastStone: ->
-    move = _.last(_.where(@accepted_moves, { pass: false }))
+    move = _.last(_.filter(@accepted_moves, (move) -> _.isNumber(move.x) ))
     if move
       { x: move.x, y: move.y }
     else
