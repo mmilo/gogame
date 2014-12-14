@@ -52,8 +52,8 @@ BoardView = React.createClass
 
 NewGameView = React.createClass
   handleClick: ->
-    gameId = Go.randomName()
-    window.location.replace("#{window.location.protocol}//#{window.location.host}/?g=#{gameId}")
+    game_id = Go.randomName()
+    window.location.replace("#{window.location.protocol}//#{window.location.host}/?g=#{game_id}")
     return
   render: ->
     `<input type="button" value="New Game" onClick={this.handleClick} />`
@@ -259,9 +259,9 @@ ContainerView = React.createClass
         alert error.message if error
         @setState(has_authed: true, current_user: null)
     
-    if (gameId = getParameterByName('g'))?
-      window.game = new Go.Game({ size: 19, game_id: gameId })
-      @setState(game: game, gameId: gameId)
+    if (game_id = getParameterByName('g'))?
+      window.game = new Go.Game({ size: 19, game_id: game_id })
+      @setState(game: game, game_id: game_id)
       game.once 'ready', => @setState game_ready: true
       game.firebase.child('moves').on 'value', @onGameUpdate
     else
@@ -280,14 +280,15 @@ ContainerView = React.createClass
       if @state.game_ready
         body =  `
           <div>
-            <div className="game-controls">
+            <div className="game-sidebar">
               <PlayersView game={this.state.game} current_user={this.state.current_user} firebase={this.props.firebase} />
               <AlertView game={this.state.game} />
+              <ChatView game_id={this.state.game_id} firebase={this.props.firebase} />
             </div>
             <div className="game-board">
               <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
             </div>
-            <a href={"https://intense-fire-8240.firebaseio.com/games/"+this.state.gameId} target="_blank" style={ {color: '#ddd', fontSize: '11px', float: 'right'} } >game data</a>
+            <a href={"https://intense-fire-8240.firebaseio.com/games/"+this.state.game_id} target="_blank" style={ {color: '#ddd', fontSize: '11px', float: 'right'} } >game data</a>
           </div>`
       else
         'loading game...'

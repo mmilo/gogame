@@ -15,18 +15,14 @@ window.PlayerView = React.createClass
       @setState(currently_online: snap.val()?)
 
     # Update the game clock every second
-    @timerInterval = setInterval @updateClock, 1000
+    @timerInterval = setInterval((=> @render()), 1000)
 
   componentWillUnmount: ->
-    if @timerInterval?
-      clearInterval @timerInterval
-
-  updateClock: ->
-    console.log 'updateClock'
-    @setState duration: @props.game.playerTimes()[@props.color]
+    clearInterval(@timerInterval) if @timerInterval?
 
   render: ->
     stoneClassNames = "stone stone--#{@props.color}"
+    duration = @props.game.playerTimes()[@props.color]
 
     if @state.user
       if @state.user.provider is 'twitter'
@@ -64,7 +60,7 @@ window.PlayerView = React.createClass
           <div className='player-badge player-resigned'>resigned</div>
             : ''
         }
-        Total time: {secondsToTime(this.state.duration)}
+        Total time: {secondsToTime(duration)}
         <br />
         Prisoners: {this.props.game.prisoners[Go.otherColor(this.props.color)] }
       </div>
