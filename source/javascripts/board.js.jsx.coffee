@@ -38,7 +38,10 @@ BoardView = React.createClass
         j++
       rows.push BoardRow(intersections: intersections)
       i++
-    boardClass = "board turn turn--" + ((if @props.game.current_color() is Go.BLACK then "black" else "white"))
+    boardClass = "board"
+    unless @props.game.game_is_over
+      boardClass = "#{boardClass} turn turn--#{(if @props.game.current_color() is Go.BLACK then "black" else "white")}"
+
     `<div className='table'>
       <div className={boardClass}>
         <table className='grid'>
@@ -175,7 +178,10 @@ PlayersView = React.createClass
       return alert('You must log in to join the game')
 
   render: ->
-    classes = "players turn--" + @state.current_color
+    classes = "players"
+    unless @props.game.game_is_over
+      classes = "#{classes} turn--#{@state.current_color}"
+
     pass_button_enabled = !@props.game.game_is_over and (if @state.current_color is Go.WHITE then @props.current_user?.uid is @state.white_uid else @props.current_user?.uid is @state.black_uid)
     resign_button_enabled = !@props.game.game_is_over
 
