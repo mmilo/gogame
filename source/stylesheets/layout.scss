@@ -25,7 +25,8 @@
     margin-left: 15px;
   }
 }
-.game-controls {
+
+.game-sidebar {
   @include span-columns(4);
 }
 .game-board {
