@@ -26,11 +26,18 @@
   }
 }
 
+.game-sidebar, .game-board {
+  position: absolute;
+  top: 100px;
+  bottom: 0;
+}
 .game-sidebar {
-  @include span-columns(4);
+  left: 0;
+  width: 400px;
 }
 .game-board {
-  @include span-columns(8);
-  @include omega;
+  left: 440px;
+  right: 15px;
+  bottom: 15px;
 }
 

@@ -17,6 +17,8 @@ BoardRow = React.createClass
     `<tr className='row'>{this.props.intersections}</tr>`
 
 BoardView = React.createClass
+  getInitialState: ->
+    maxDimension: '0'
   render: ->
     rows = []
     i = 0
@@ -42,13 +44,28 @@ BoardView = React.createClass
     unless @props.game.game_is_over
       boardClass = "#{boardClass} turn turn--#{(if @props.game.current_color() is Go.BLACK then "black" else "white")}"
 
-    `<div className='table'>
+
+    scalingCSS = { maxHeight: @state.maxDimension+'px', maxWidth: @state.maxDimension+'px' }
+
+    `<div className='table' style={scalingCSS} >
       <div className={boardClass}>
         <table className='grid'>
           {rows}
         </table>
       </div>
     </div>`
+
+  componentDidMount: ->
+    @getDimensions()
+    window.addEventListener('resize', @getDimensions)
+  componentWillUnmount: ->
+    window.removeEventListener('resize', @getDimensions)
+
+  getDimensions: ->
+    min = Math.min @getDOMNode().parentNode.clientHeight, @getDOMNode().parentNode.clientWidth
+    console.log min
+    @setState(maxDimension: min)
+
 
 NewGameView = React.createClass
   handleClick: ->
