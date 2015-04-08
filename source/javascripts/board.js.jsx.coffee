@@ -136,10 +136,15 @@ UserSessionView = React.createClass
       `<SignupAndLoginForm mode='login'  onCancel={this.cancelAction} />`
     else
       `<div>
-        <input type="button" value="Login with Twitter" onClick={this.loginWithTwitter} />
-        <input type="button" value="Login with Email" onClick={this.loginWithEmail} />
-        <input type="button" value="Login Anonymously" onClick={this.loginAnonymously} />
-        <input type="button" value="Signup with email" onClick={this.signupWithEmail} />
+        Login
+        &nbsp;&ndash;&nbsp;&nbsp;
+        <button type="button" className='text-link' onClick={this.loginWithTwitter}>Twitter</button>
+        &nbsp;&nbsp;
+        <button type="button" className='text-link' onClick={this.loginWithEmail}>Email</button>
+        &nbsp;&nbsp;
+        <button type="button" className='text-link' onClick={this.loginAnonymously}>Anonymously</button>
+        &nbsp;&nbsp;
+        <button type="button" className='text-link' onClick={this.signupWithEmail}>Signup with email</button>
       </div>`
 
 SignupAndLoginForm = React.createClass
@@ -199,9 +204,6 @@ PlayersView = React.createClass
     unless @props.game.game_is_over
       classes = "#{classes} turn--#{@state.current_color}"
 
-    pass_button_enabled = !@props.game.game_is_over and (if @state.current_color is Go.WHITE then @props.current_user?.uid is @state.white_uid else @props.current_user?.uid is @state.black_uid)
-    resign_button_enabled = !@props.game.game_is_over
-
 
     `<div className={classes}>
       <ul>
@@ -216,10 +218,7 @@ PlayersView = React.createClass
           <PlayerSpotView color={Go.WHITE} joinGame={this.joinGame} />
         }
       </ul>
-      {<PassView game={this.props.game} enabled={pass_button_enabled} />}
-      <br />
-      <br />
-      {<ResignView game={this.props.game} enabled={resign_button_enabled} />}
+
     </div>
     `
 
@@ -293,6 +292,9 @@ ContainerView = React.createClass
     return
 
   render: ->
+    pass_button_enabled = !@props.game?.game_is_over and (if @state.current_color is Go.WHITE then @props.current_user?.uid is @state.white_uid else @props.current_user?.uid is @state.black_uid)
+    resign_button_enabled = !@props.game?.game_is_over
+
     if @state.game?
       if @state.game_ready
         body =  `
@@ -304,6 +306,8 @@ ContainerView = React.createClass
             </div>
             <div className="game-board">
               <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
+              <PassView game={this.props.game} enabled={pass_button_enabled} />
+              <ResignView game={this.props.game} enabled={resign_button_enabled} />
             </div>
             <a href={"https://intense-fire-8240.firebaseio.com/games/"+this.state.game_id} target="_blank" style={ {color: '#ddd', fontSize: '11px', float: 'right'} } >game data</a>
           </div>`

@@ -37,7 +37,9 @@ window.PlayerView = React.createClass
 
     `<li>
       <div className='player-info'>
-        <div className={stoneClassNames}></div>
+        <div className='player-stone-container'>
+          <div className={stoneClassNames}></div>
+        </div>
         <div className='player-name'>
           { displayName }
         </div>

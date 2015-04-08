@@ -1,14 +1,14 @@
-input[type='button'], button {
+.btn {
   padding: 8px 10px;
   border: 0px;
   line-height: 1;
   padding: 10px 15px;
-  background: lighten(#50b1ff, 8%);
-  color: white;
+  background: $buttonColor;
+  color: $primaryTextColor;
   border-radius: 2px;
   min-width: 80px;
   &:hover {
-    background: lighten(#50b1ff, 0%);
+    background: darken($buttonColor, 0%);
   }
 
   &[disabled], &.disabled{
@@ -16,4 +16,19 @@ input[type='button'], button {
     color: #aaa;
     cursor: default;
   }
+}
+
+.text-link {
+  background: none;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  display: inline;
+  text-decoration: underline;
+}
+
+span.anchor{
+  text-decoration: underline;
+  margin: 0 5px;
+
 }

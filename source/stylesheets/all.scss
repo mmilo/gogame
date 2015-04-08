@@ -11,7 +11,7 @@
 
 *, *:before, *:after {
   -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-  font-family: 'Noto Sans', sans-serif;
+  font-family: 'Lato', sans-serif;
 }
 
 .players {
@@ -22,25 +22,37 @@
   }
   li {
     margin-bottom: 30px;
-    background: $pale;
-    border: 2px solid $paleBorder;
-    border-radius: 2px;
     position: relative;
+    border: 1px solid $paleBorder;
+    background: white;
+    border-radius: 4px;
+    .player-avatar{
+      width: 50px;
+      height: 50px;
+      border-radius: 4px;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
     .player-info{
       height: 50px;
       line-height: 20px;
-      padding: 10px 60px;
+      padding: 15px 70px;
     }
     .player-name{
+      float: left;
+      background: white;
+      padding-right: 10px;
 
     }
     .player-online-status{
       font-size: 12px;
-      opacity: 0.8;
+      clear: both;
+      color: #aaa;
     }
     .player-game-info{
       background: transparent;
-      padding: 10px;
+      padding: 15px 10px;
       font-size: 14px;
       color: rgba(black, .8);
     }
@@ -67,22 +79,23 @@
 			height: 100px;
       padding: 10px;
     }
-    &:after{
-      content: ' ';
+    .player-stone-container{
+      border: 1px solid $paleBorder;
       position: absolute;
-      top: -15px;
-      right: -15px;
+      bottom: -20px;
+      right: -10px;
       width: 70px;
       height: 70px;
-      background: white;
+      background: #f4f4f4;
       border-radius: 100%;
       z-index: 1;
-      border: 2px solid $paleBorder;
     }
     .stone {
       position: absolute;
-      top: 0px;
-      right: 0px;
+      top: 50%;
+      left: 50%;
+      margin-left: -20px;
+      margin-top: -20px;
       z-index: 2;
     }
     .btn-pass {
@@ -102,16 +115,6 @@
       }
     }
   }
-}
-
-.player-avatar{
-  width: 50px;
-  height: 50px;
-  position: absolute;
-  top: 0;
-  left: 0;
-	border: 2px solid $paleBorder;
-	border-width: 0 2px 2px 0;
 }
 
 .join-btn{

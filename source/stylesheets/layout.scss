@@ -2,6 +2,10 @@
 @import 'neat/neat';
 @import 'colors';
 
+html{
+  background: #f4f4f4;
+}
+
 #header {
   padding: 1em 2em;
   border-bottom: 1px solid darken($pale, 5%);
@@ -34,6 +38,7 @@
 .game-sidebar {
   left: 0;
   width: 400px;
+  padding-left: 20px;
 }
 .game-board {
   left: 440px;
