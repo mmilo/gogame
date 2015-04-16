@@ -235,7 +235,7 @@ ContainerView = React.createClass
 
   componentWillMount: ->
     window.view = this
-    @props.firebase = new Firebase("https://intense-fire-8240.firebaseio.com/")
+    @props.firebase = new Firebase(BASE_URL)
     
 
     # TODO: scope auth properly and make it availabel to ancestor views
@@ -305,7 +305,7 @@ ContainerView = React.createClass
             <div className="game-board">
               <BoardView game={this.state.game} onPlay={this.onGameUpdate} />
             </div>
-            <a href={"https://intense-fire-8240.firebaseio.com/games/"+this.state.game_id} target="_blank" style={ {color: '#ddd', fontSize: '11px', float: 'right'} } >game data</a>
+            <a href={BASE_URL+"/games/"+this.state.game_id} target="_blank" style={ {color: '#ddd', fontSize: '11px', float: 'right'} } >game data</a>
           </div>`
       else
         'loading game...'

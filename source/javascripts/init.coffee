@@ -10,6 +10,8 @@ window.Go = {
   }
 }
 
+window.BASE_URL = "https://gogame.firebaseio.com/"
+
 Go.otherColor = (color) ->
   if color is Go.BLACK
     return Go.WHITE

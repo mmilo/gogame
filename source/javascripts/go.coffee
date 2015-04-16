@@ -5,7 +5,7 @@ class Go.Game extends Backbone.Model
     @clickSound = new Audio("/sounds/click.wav")
     @resetBoard()
 
-    @firebase = new Firebase("https://intense-fire-8240.firebaseio.com/games/#{options.game_id}")
+    @firebase = new Firebase("#{BASE_URL}/games/#{options.game_id}")
 
     @firebase.child('players').on 'value', (snapshot) =>
       @players = snapshot.val() || {}
@@ -40,7 +40,7 @@ class Go.Game extends Backbone.Model
         @resetBoard()
         _.each moves, (move, key, moves) => @play(move, replaying: true)
 
-      offsetRef = new Firebase("https://intense-fire-8240.firebaseIO-demo.com/.info/serverTimeOffset")
+      offsetRef = new Firebase("#{BASE_URL}/.info/serverTimeOffset")
       offsetRef.on "value", (snap) => @serverTimeOffset = snap.val()
 
       @trigger('ready')
